@@ -1,0 +1,21 @@
+{
+    "configurations": [
+        {
+            "name": "Mac",
+            "includePath": [
+                "${workspaceFolder}/**",
+                "/Users/greg/Library/Arduino15/packages/eclay/tools/gcc-arm-none-eabi/7-2018q2/arm-none-eabi/include/**"
+            ],
+            "defines": [
+                "__SAMD21G18A__",
+                "CRYSTALLESS",
+                "ARM_MATH_CM0PLUS",
+                "ECLAY_MINION_D21",
+                "ARDUINO_MINION_D21",
+                "USBCON"
+            ],
+            "intelliSenseMode": "clang-x64"
+        }
+    ],
+    "version": 4
+}

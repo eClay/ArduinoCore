@@ -1,0 +1,8 @@
+{
+    "files.associations": {
+        "sam.h": "c",
+        "samd21g18a.h": "c",
+        "wdigital.h": "c",
+        "cstdlib": "cpp"
+    }
+}

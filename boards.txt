@@ -1,0 +1,55 @@
+# Arduino SAMD21 Core and platform.
+# ------------------------------
+#
+# For more info:
+# https://github.com/arduino/Arduino/wiki/Arduino-IDE-1.5-3rd-party-Hardware-specification
+
+# Copyright (c) 2018 eClay Inc.  All right reserved.
+#
+# This library is free software; you can redistribute it and/or
+# modify it under the terms of the GNU Lesser General Public
+# License as published by the Free Software Foundation; either
+# version 2.1 of the License, or (at your option) any later version.
+#
+# This library is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+# See the GNU Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public
+# License along with this library; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+
+##############################################################
+
+eclay_minion_d21.name=eClay Minion (SAMD21)
+
+eclay_minion_d21.vid.0=0xEC1A
+eclay_minion_d21.pid.0=0x8B0B
+eclay_minion_d21.vid.1=0xEC1A
+eclay_minion_d21.pid.1=0x0B0B
+
+eclay_minion_d21.build.mcu=cortex-m0plus
+eclay_minion_d21.build.f_cpu=48000000L
+eclay_minion_d21.build.vid=0xEC1A
+eclay_minion_d21.build.pid=0x8B0B
+eclay_minion_d21.build.usb_product="Minion D21"
+eclay_minion_d21.build.usb_manufacturer="eClay Inc."
+eclay_minion_d21.build.board=MINION_D21
+eclay_minion_d21.build.core=arduino
+eclay_minion_d21.build.variant=minion_d21
+eclay_minion_d21.build.extra_flags=-DCRYSTALLESS -DARM_MATH_CM0PLUS -DECLAY_MINION_D21 -D__SAMD21G18A__ {build.usb_flags}
+eclay_minion_d21.build.ldscript=linker_scripts/gcc/flash_with_bootloader.ld
+eclay_minion_d21.build.bootlength=0x2000
+eclay_minion_d21.build.openocdscript=openocd_scripts/arduino_zero.cfg
+
+eclay_minion_d21.upload.tool=bossac
+eclay_minion_d21.upload.protocol=sam-ba
+eclay_minion_d21.upload.maximum_size=262144
+eclay_minion_d21.upload.offset=0x2000
+eclay_minion_d21.upload.use_1200bps_touch=true
+eclay_minion_d21.upload.wait_for_upload_port=true
+eclay_minion_d21.upload.native_usb=true
+
+eclay_minion_d21.bootloader.tool=openocd
+eclay_minion_d21.bootloader.file=minion_d21/bootloader-minion_samd21.bin
