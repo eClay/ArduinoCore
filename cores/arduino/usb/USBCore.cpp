@@ -1,6 +1,5 @@
 /*
   Copyright (c) 2016 Arduino LLC.  All right reserved.
-  SAMD51 support added by Adafruit - Copyright (c) 2018 Dean Miller for Adafruit Industries
 
   This library is free software; you can redistribute it and/or
   modify it under the terms of the GNU Lesser General Public
@@ -21,26 +20,27 @@
 
 #include <Arduino.h>
 
-// there are ~slight~ CMSIS differences :/
-#ifdef __SAMR21G18A__
-  #include "SAMR21_USBDevice.h"
-#else
-  #include "SAMD21_USBDevice.h"
-#endif
-
-#include "PluggableUSB.h"
+#include "SAMD21_USBDevice.h"
+#include "api/PluggableUSB.h"
+#include "USBAPI.h"
+#include "USBCore.h"
+#include "USBDesc.h"
+#include "USB_host.h"
 
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdint.h>
 #include <limits.h>
 
-#ifdef __SAMR21G18A__
-USBDevice_SAMR21G18x usbd;
-#else
-USBDevice_SAMD21G18x usbd;
-#endif
+#define microsecondsToClockCycles(a) ( (a) * (SystemCoreClock / 1000000L) )
 
+/*
+ * USB Device instance
+ * -------------------
+ */
+
+USBDevice_SAMD21G18x usbd;
+USBDeviceClass USBDevice;
 
 /** Pulse generation counters to keep track of the number of milliseconds remaining for each pulse type */
 #define TX_RX_LED_PULSE_MS 100
@@ -244,11 +244,6 @@ bool USBDeviceClass::sendDescriptor(USBSetup &setup)
 		}
 		else if (setup.wValueL == ISERIAL) {
 #ifdef PLUGGABLE_USB_ENABLED
-#if defined(__SAMD51__)
-			char name[ISERIAL_MAX_LEN];
-			PluggableUSB().getShortName(name);
-			return sendStringDescriptor((uint8_t*)name, setup.wLength);
-#else
 			// from section 9.3.3 of the datasheet
 			#define SERIAL_NUMBER_WORD_0	*(volatile uint32_t*)(0x0080A00C)
 			#define SERIAL_NUMBER_WORD_1	*(volatile uint32_t*)(0x0080A040)
@@ -263,7 +258,6 @@ bool USBDeviceClass::sendDescriptor(USBSetup &setup)
 
 			PluggableUSB().getShortName(&name[32]);
 			return sendStringDescriptor((uint8_t*)name, setup.wLength);
-#endif
 #endif
 		}
 		else {
@@ -331,24 +325,9 @@ void USBDeviceClass::init()
 	digitalWrite(PIN_LED_RXL, HIGH);
 #endif
 
-	/* Enable USB clock */
-#if defined(__SAMD51__)
-	MCLK->APBBMASK.reg |= MCLK_APBBMASK_USB;
-	MCLK->AHBMASK.reg |= MCLK_AHBMASK_USB;
-	
-	// Set up the USB DP/DN pins
-	PORT->Group[0].PINCFG[PIN_PA24H_USB_DM].bit.PMUXEN = 1;
-	PORT->Group[0].PMUX[PIN_PA24H_USB_DM/2].reg &= ~(0xF << (4 * (PIN_PA24H_USB_DM & 0x01u)));
-	PORT->Group[0].PMUX[PIN_PA24H_USB_DM/2].reg |= MUX_PA24H_USB_DM << (4 * (PIN_PA24H_USB_DM & 0x01u));
-	PORT->Group[0].PINCFG[PIN_PA25H_USB_DP].bit.PMUXEN = 1;
-	PORT->Group[0].PMUX[PIN_PA25H_USB_DP/2].reg &= ~(0xF << (4 * (PIN_PA25H_USB_DP & 0x01u)));
-	PORT->Group[0].PMUX[PIN_PA25H_USB_DP/2].reg |= MUX_PA25H_USB_DP << (4 * (PIN_PA25H_USB_DP & 0x01u));
-	
-	
-	GCLK->PCHCTRL[USB_GCLK_ID].reg = GCLK_PCHCTRL_GEN_GCLK1_Val | (1 << GCLK_PCHCTRL_CHEN_Pos);
-#else
+	// Enable USB clock
 	PM->APBBMASK.reg |= PM_APBBMASK_USB;
-	
+
 	// Set up the USB DP/DN pins
 	PORT->Group[0].PINCFG[PIN_PA24G_USB_DM].bit.PMUXEN = 1;
 	PORT->Group[0].PMUX[PIN_PA24G_USB_DM/2].reg &= ~(0xF << (4 * (PIN_PA24G_USB_DM & 0x01u)));
@@ -359,11 +338,10 @@ void USBDeviceClass::init()
 
 	// Put Generic Clock Generator 0 as source for Generic Clock Multiplexer 6 (USB reference)
 	GCLK->CLKCTRL.reg = GCLK_CLKCTRL_ID(6)     | // Generic Clock Multiplexer 6
-	GCLK_CLKCTRL_GEN_GCLK0 | // Generic Clock Generator 0 is source
-	GCLK_CLKCTRL_CLKEN;
+	                    GCLK_CLKCTRL_GEN_GCLK0 | // Generic Clock Generator 0 is source
+	                    GCLK_CLKCTRL_CLKEN;
 	while (GCLK->STATUS.bit.SYNCBUSY)
-	;
-#endif
+		;
 
 	USB_SetHandler(&UDD_Handler);
 
@@ -376,20 +354,8 @@ void USBDeviceClass::init()
 	usbd.setFullSpeed();
 
 	// Configure interrupts
-#if defined(__SAMD51__)
-	/* Attach to the USB host */
-	NVIC_SetPriority(USB_0_IRQn, 0UL);
-	NVIC_SetPriority(USB_1_IRQn, 0UL);
-	NVIC_SetPriority(USB_2_IRQn, 0UL);
-	NVIC_SetPriority(USB_3_IRQn, 0UL);
-	NVIC_EnableIRQ(USB_0_IRQn);
-	NVIC_EnableIRQ(USB_1_IRQn);
-	NVIC_EnableIRQ(USB_2_IRQn);
-	NVIC_EnableIRQ(USB_3_IRQn);
-#else
 	NVIC_SetPriority((IRQn_Type) USB_IRQn, 0UL);
 	NVIC_EnableIRQ((IRQn_Type) USB_IRQn);
-#endif
 
 	usbd.enable();
 
@@ -402,7 +368,6 @@ bool USBDeviceClass::attach()
 		return false;
 
 	usbd.attach();
-
 	usbd.enableEndOfResetInterrupt();
 	usbd.enableStartOfFrameInterrupt();
 
@@ -431,6 +396,13 @@ bool USBDeviceClass::detach()
 	if (!initialized)
 		return false;
 	usbd.detach();
+	return true;
+}
+
+bool USBDeviceClass::end() {
+	if (!initialized)
+		return false;
+	usbd.disable();
 	return true;
 }
 
@@ -506,12 +478,6 @@ void USBDeviceClass::initEP(uint32_t ep, uint32_t config)
 		}
 		epHandlers[ep] = new DoubleBufferedEPOutHandler(usbd, ep, 256);
 	}
-	else if (config == (USB_ENDPOINT_TYPE_INTERRUPT | USB_ENDPOINT_OUT(0)))
-    {
-	    if(epHandlers[ep]){
-	        epHandlers[ep]->init();
-	    }
-    }
 	else if (config == (USB_ENDPOINT_TYPE_BULK | USB_ENDPOINT_IN(0)))
 	{
 		usbd.epBank1SetSize(ep, 64);
@@ -541,10 +507,6 @@ void USBDeviceClass::initEP(uint32_t ep, uint32_t config)
 		// NAK on endpoint OUT, the bank is full.
 		usbd.epBank0SetReady(ep);
 	}
-}
-
-void USBDeviceClass::setHandler(uint32_t ep, EPHandler *handler) {
-    epHandlers[ep] = handler;
 }
 
 void USBDeviceClass::flush(uint32_t ep)
@@ -742,8 +704,8 @@ uint32_t USBDeviceClass::send(uint32_t ep, const void *data, uint32_t len)
 
 		LastTransmitTimedOut[ep] = 0;
 
-		if (len > EPX_SIZE) {
-			length = EPX_SIZE;
+		if (len >= EPX_SIZE) {
+			length = EPX_SIZE - 1;
 		} else {
 			length = len;
 		}
@@ -1004,7 +966,6 @@ void USBDeviceClass::ISRHandler()
 		// Check if endpoint has a pending interrupt
 		if ((ept_int & (1 << i)) != 0)
 		{
-
 			// Endpoint Transfer Complete (0/1) Interrupt
 			if (usbd.epBank0IsTransferComplete(i) ||
 			    usbd.epBank1IsTransferComplete(i))
@@ -1023,12 +984,29 @@ void USBDeviceClass::ISRHandler()
 	}
 }
 
-/*
- * USB Device instance
- * -------------------
- */
+// PluggableUSB contructor
+PluggableUSB_::PluggableUSB_() : lastIf(CDC_ACM_INTERFACE + CDC_INTERFACE_COUNT),
+                                 lastEp(CDC_FIRST_ENDPOINT + CDC_ENPOINT_COUNT),
+                                 rootNode(NULL), totalEP(USB_ENDPOINTS)
+{
+	// Empty
+}
 
-// USBDevice class instance
-USBDeviceClass USBDevice;
+void* epBuffer(unsigned int lastEp) {
+	return &(EndPoints[lastEp]);
+}
+
+static void (*usb_isr)(void) = NULL;
+
+void USB_Handler(void)
+{
+  if (usb_isr)
+    usb_isr();
+}
+
+void USB_SetHandler(void (*new_usb_isr)(void))
+{
+  usb_isr = new_usb_isr;
+}
 
 #endif

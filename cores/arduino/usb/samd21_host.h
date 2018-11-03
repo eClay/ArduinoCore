@@ -19,11 +19,11 @@
 #ifndef SAMD21_HOST_H_INCLUDED
 #define SAMD21_HOST_H_INCLUDED
 
+#include "sam.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-#include "sam.h"
 
 extern __attribute__((__aligned__(4))) volatile UsbHostDescriptor usb_pipe_table[USB_EPT_NUM];
 

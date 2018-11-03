@@ -17,7 +17,11 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#include <Arduino.h>
+#include "Arduino.h"
+
+#include "usb/USBAPI.h"
+extern USBDeviceClass USBDevice;
+
 
 // Weak empty variant initialization function.
 // May be redefined by variant files.
@@ -26,6 +30,16 @@ void initVariant() { }
 
 void setupUSB() __attribute__((weak));
 void setupUSB() { }
+
+extern "C"{
+void SystemInit(void);
+void SystemInit2(void);
+void boardInit(void);
+}
+void initVariant(void);
+
+void setup(void);
+void loop(void);
 
 int main(void)
 {
@@ -36,7 +50,8 @@ int main(void)
 	initVariant();
 
 #if defined(USBCON)
-//	USBDevice.attach();
+  USBDevice.init();
+  USBDevice.attach();
 #endif
 	
 	setup();

@@ -3,3 +3,4 @@
 
 bootloaders/*/build/
 *~
+cores/arduino/api

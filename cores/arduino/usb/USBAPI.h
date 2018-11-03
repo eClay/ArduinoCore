@@ -29,35 +29,12 @@
 
 #if defined __cplusplus
 
-#include "Stream.h"
-#include "RingBuffer.h"
-#ifdef __SAMR21G18A__
-#include "SAMR21_USBDevice.h"
-#else
-#include "SAMD21_USBDevice.h"
-#endif
+#include "api/Stream.h"
+#include "api/RingBuffer.h"
+#include "api/USBAPI.h"
 
 //================================================================================
 // USB
-
-class EPHandler;
-
-// Low level API
-typedef struct {
-	union {
-		uint8_t bmRequestType;
-		struct {
-			uint8_t direction : 5;
-			uint8_t type : 2;
-			uint8_t transferDirection : 1;
-		};
-	};
-	uint8_t bRequest;
-	uint8_t wValueL;
-	uint8_t wValueH;
-	uint16_t wIndex;
-	uint16_t wLength;
-} USBSetup;
 
 class USBDeviceClass {
 public:
@@ -65,6 +42,7 @@ public:
 
 	// USB Device API
 	void init();
+	bool end();
 	bool attach();
 	bool detach();
 	void setAddress(uint32_t addr);
@@ -92,7 +70,6 @@ public:
 	// Generic EndPoint API
 	void initEndpoints(void);
 	void initEP(uint32_t ep, uint32_t type);
-	void setHandler(uint32_t ep, EPHandler *handler);
 	void handleEndpoint(uint8_t ep);
 
 	uint32_t send(uint32_t ep, const void *data, uint32_t len);
@@ -113,8 +90,6 @@ public:
 private:
 	bool initialized;
 };
-
-extern USBDeviceClass USBDevice;
 
 //================================================================================
 //	Serial over CDC (Serial1 is the physical port)
@@ -182,10 +157,9 @@ private:
 	int availableForStore(void);
 
 	USBDeviceClass &usb;
-	RingBuffer *_cdc_rx_buffer;
 	bool stalled;
 };
-extern Serial_ Serial;
+extern Serial_ SerialUSB;
 
 //================================================================================
 //================================================================================

@@ -151,25 +151,25 @@ static const uint8_t SCK1  = PIN_SPI1_SCK;
 
 // Serial ports
 // ------------
-#ifdef __cplusplus
-#include "SERCOM.h"
-#include "Uart.h"
+// #ifdef __cplusplus
+// #include "SERCOM.h"
+// #include "Uart.h"
 
-// Instances of SERCOM
-extern SERCOM sercom0;
-extern SERCOM sercom1;
-extern SERCOM sercom2;
-extern SERCOM sercom3;
-extern SERCOM sercom4;
-extern SERCOM sercom5;
+// // Instances of SERCOM
+// extern SERCOM sercom0;
+// extern SERCOM sercom1;
+// extern SERCOM sercom2;
+// extern SERCOM sercom3;
+// extern SERCOM sercom4;
+// extern SERCOM sercom5;
 
 // Serial1
-extern Uart Serial1;
-#define PIN_SERIAL1_RX (13ul)
-#define PIN_SERIAL1_TX (14ul)
-#define PAD_SERIAL1_TX (UART_TX_PAD_2)
-#define PAD_SERIAL1_RX (SERCOM_RX_PAD_3)
-#endif // __cplusplus
+// extern Uart Serial1;
+// #define PIN_SERIAL1_RX (13ul)
+// #define PIN_SERIAL1_TX (14ul)
+// #define PAD_SERIAL1_TX (UART_TX_PAD_2)
+// #define PAD_SERIAL1_RX (SERCOM_RX_PAD_3)
+// #endif // __cplusplus
 
 // These serial port names are intended to allow libraries and architecture-neutral
 // sketches to automatically default to the correct port name for a particular type

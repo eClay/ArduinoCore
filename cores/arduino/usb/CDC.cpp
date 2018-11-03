@@ -16,8 +16,16 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#include <Arduino.h>
-#include <Reset.h> // Needed for auto-reset with 1200bps port touch
+#include "USBAPI.h"
+#include "USBCore.h"
+#include "USBDesc.h"
+
+#include "api/WDelay.h"
+#include "api/WTime.h"
+
+#include "Reset.h" // Needed for auto-reset with 1200bps port touch
+
+#include "sam.h"
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -32,6 +40,8 @@
 #define CDC_LINESTATE_RTS		0x02 // Ready to Send
 
 #define CDC_LINESTATE_READY		(CDC_LINESTATE_RTS | CDC_LINESTATE_DTR)
+
+extern USBDeviceClass USBDevice;
 
 typedef struct {
 	uint32_t dwDTERate;
@@ -150,6 +160,7 @@ void Serial_::begin(uint32_t /* baud_count */, uint8_t /* config */)
 
 void Serial_::end(void)
 {
+	memset((void*)&_usbLineInfo, 0, sizeof(_usbLineInfo));
 }
 
 int Serial_::available(void)
@@ -205,20 +216,7 @@ void Serial_::flush(void)
 
 size_t Serial_::write(const uint8_t *buffer, size_t size)
 {
-	/* only try to send bytes if the high-level CDC connection itself
-	 is open (not just the pipe) - the OS should set lineState when the port
-	 is opened and clear lineState when the port is closed.
-	 bytes sent before the user opens the connection or after
-	 the connection is closed are lost - just like with a UART. */
-
-	// TODO - ZE - check behavior on different OSes and test what happens if an
-	// open connection isn't broken cleanly (cable is yanked out, host dies
-	// or locks up, or host virtual serial port hangs)
-	uint32_t r = 0;
-	if (_usbLineInfo.lineState > 0)  // Problem with Windows(R)
-	{
-		r = usb.send(CDC_ENDPOINT_IN, buffer, size);
-	}
+	uint32_t r = usb.send(CDC_ENDPOINT_IN, buffer, size);
 
 	if (r > 0) {
 		return r;
@@ -256,6 +254,50 @@ Serial_::operator bool()
 	return result;
 }
 
-Serial_ Serial(USBDevice);
+int32_t Serial_::readBreak() {
+	uint8_t enableInterrupts = ((__get_PRIMASK() & 0x1) == 0);
+
+	// disable interrupts,
+	// to avoid clearing a breakValue that might occur 
+	// while processing the current break value
+	__disable_irq();
+
+	int32_t ret = breakValue;
+
+	breakValue = -1;
+
+	if (enableInterrupts) {
+		// re-enable the interrupts
+		__enable_irq();
+	}
+
+	return ret;
+}
+
+unsigned long Serial_::baud() {
+	return _usbLineInfo.dwDTERate;
+}
+
+uint8_t Serial_::stopbits() {
+	return _usbLineInfo.bCharFormat;
+}
+
+uint8_t Serial_::paritytype() {
+	return _usbLineInfo.bParityType;
+}
+
+uint8_t Serial_::numbits() {
+	return _usbLineInfo.bDataBits;
+}
+
+bool Serial_::dtr() {
+	return _usbLineInfo.lineState & 0x1;
+}
+
+bool Serial_::rts() {
+	return _usbLineInfo.lineState & 0x2;
+}
+
+Serial_ SerialUSB(USBDevice);
 
 #endif

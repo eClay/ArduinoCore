@@ -22,7 +22,7 @@
 #include <stdint.h>
 #include <string.h>
 
-#include "../Arduino.h"
+#include "Arduino.h"
 #include "variant.h"
 #include "USB_host.h"
 #include "samd21_host.h"
@@ -66,11 +66,7 @@ void UHD_Init(void)
 	USB_SetHandler(&UHD_Handler);
 
 	/* Enable USB clock */
-#if defined(__SAMD51__)
-	MCLK->APBBMASK.reg |= MCLK_APBBMASK_USB;
-#else
 	PM->APBBMASK.reg |= PM_APBBMASK_USB;
-#endif
 
 	/* Set up the USB DP/DM pins */
 //	pinPeripheral( PIN_USB_DM, PIO_COM );
@@ -82,14 +78,9 @@ void UHD_Init(void)
  	PORT->Group[0].PMUX[PIN_PA25G_USB_DP/2].reg &= ~(0xF << (4 * (PIN_PA25G_USB_DP & 0x01u)));
  	PORT->Group[0].PMUX[PIN_PA25G_USB_DP/2].reg |= MUX_PA25G_USB_DP << (4 * (PIN_PA25G_USB_DP & 0x01u));
 
-
 	/* ----------------------------------------------------------------------------------------------
 	* Put Generic Clock Generator 0 as source for Generic Clock Multiplexer 6 (USB reference)
 	*/
-	
-#if defined(__SAMD51__)
-	GCLK->PCHCTRL[USB_GCLK_ID].reg = GCLK_PCHCTRL_GEN_GCLK1_Val | (1 << GCLK_PCHCTRL_CHEN_Pos);
-#else
 	GCLK->CLKCTRL.reg = GCLK_CLKCTRL_ID(6) |        // Generic Clock Multiplexer 6
 						GCLK_CLKCTRL_GEN_GCLK0 |    // Generic Clock Generator 0 is source
 						GCLK_CLKCTRL_CLKEN;
@@ -98,7 +89,6 @@ void UHD_Init(void)
 	{
 		/* Wait for synchronization */
 	}
-#endif
 
 	/* Reset */
 	USB->HOST.CTRLA.bit.SWRST = 1;
@@ -112,14 +102,8 @@ void UHD_Init(void)
 	uhd_force_host_mode();
 	while (USB->HOST.SYNCBUSY.reg == USB_SYNCBUSY_ENABLE);
 
-
 	/* Load Pad Calibration */
-#if defined(__SAMD51__)
-	pad_transn = (*((uint32_t *)(NVMCTRL_SW0)       // Non-Volatile Memory Controller
-#else
 	pad_transn = (*((uint32_t *)(NVMCTRL_OTP4)       // Non-Volatile Memory Controller
-#endif
-
 					+ (NVM_USB_PAD_TRANSN_POS / 32))
 					>> (NVM_USB_PAD_TRANSN_POS % 32))
 				& ((1 << NVM_USB_PAD_TRANSN_SIZE) - 1);
@@ -131,11 +115,7 @@ void UHD_Init(void)
 
 	USB->HOST.PADCAL.bit.TRANSN = pad_transn;
 
-#if defined(__SAMD51__)
-	pad_transp = (*((uint32_t *)(NVMCTRL_SW0)
-#else
 	pad_transp = (*((uint32_t *)(NVMCTRL_OTP4)
-#endif
 					+ (NVM_USB_PAD_TRANSP_POS / 32))
 					>> (NVM_USB_PAD_TRANSP_POS % 32))
 				& ((1 << NVM_USB_PAD_TRANSP_SIZE) - 1);
@@ -147,11 +127,7 @@ void UHD_Init(void)
 
 	USB->HOST.PADCAL.bit.TRANSP = pad_transp;
 
-#if defined(__SAMD51__)
-	pad_trim = (*((uint32_t *)(NVMCTRL_SW0)
-#else
 	pad_trim = (*((uint32_t *)(NVMCTRL_OTP4)
-#endif
 					+ (NVM_USB_PAD_TRIM_POS / 32))
 				>> (NVM_USB_PAD_TRIM_POS % 32))
 				& ((1 << NVM_USB_PAD_TRIM_SIZE) - 1);
@@ -170,10 +146,7 @@ void UHD_Init(void)
 	USB->HOST.DESCADD.reg = (uint32_t)(&usb_pipe_table[0]);
 	// For USB_SPEED_FULL
 	uhd_force_full_speed();
-	for (i = 0; i < sizeof(usb_pipe_table); i++)
-	{
-		(*(uint32_t *)(&usb_pipe_table[0] + i)) = 0;
-	}
+	memset((void *)usb_pipe_table, 0, sizeof(usb_pipe_table));
 
 	uhd_state = UHD_STATE_NO_VBUS;
 
@@ -190,20 +163,8 @@ void UHD_Init(void)
 	USB->HOST.CTRLB.bit.VBUSOK = 1;
 
 	// Configure interrupts
-#if defined(__SAMD51__)
-	NVIC_SetPriority((IRQn_Type)USB_0_IRQn, 0UL);
-	NVIC_SetPriority((IRQn_Type)USB_1_IRQn, 0UL);
-	NVIC_SetPriority((IRQn_Type)USB_2_IRQn, 0UL);
-	NVIC_SetPriority((IRQn_Type)USB_3_IRQn, 0UL);
-
-	NVIC_EnableIRQ((IRQn_Type)USB_0_IRQn);
-	NVIC_EnableIRQ((IRQn_Type)USB_1_IRQn);
-	NVIC_EnableIRQ((IRQn_Type)USB_2_IRQn);
-	NVIC_EnableIRQ((IRQn_Type)USB_3_IRQn);
-#else
 	NVIC_SetPriority((IRQn_Type)USB_IRQn, 0UL);
 	NVIC_EnableIRQ((IRQn_Type)USB_IRQn);
-#endif
 }
 
 

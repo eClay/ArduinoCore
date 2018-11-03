@@ -1,6 +1,5 @@
 /*
   Copyright (c) 2015 Arduino LLC.  All right reserved.
-  SAMD51 support added by Adafruit - Copyright (c) 2018 Dean Miller for Adafruit Industries
 
   This library is free software; you can redistribute it and/or
   modify it under the terms of the GNU Lesser General Public
@@ -25,6 +24,8 @@
 #include <stdio.h>
 #include <stdint.h>
 
+#include "sync.h"
+
 typedef uint8_t ep_t;
 
 class USBDevice_SAMD21G18x {
@@ -40,18 +41,8 @@ public:
 	void reset();
 
 	// Enable
-	inline void enable()  { 
-		usb.CTRLA.bit.ENABLE = 1;
-#if defined(__SAMD51__)
-		while( usb.SYNCBUSY.reg & USB_SYNCBUSY_ENABLE ); //wait for sync
-#endif
-	}
-	inline void disable() { 
-		usb.CTRLA.bit.ENABLE = 0;
-#if defined(__SAMD51__)
-		while( usb.SYNCBUSY.reg & USB_SYNCBUSY_ENABLE ); //wait for sync
-#endif
-	}
+	inline void enable()  { usb.CTRLA.bit.ENABLE = 1; }
+	inline void disable() { usb.CTRLA.bit.ENABLE = 0; }
 
 	// USB mode (device/host)
 	inline void setUSBDeviceMode() { usb.CTRLA.bit.MODE = USB_CTRLA_MODE_DEVICE_Val; }
@@ -178,30 +169,34 @@ private:
 	__attribute__((__aligned__(4)))	UsbDeviceDescriptor EP[USB_EPT_NUM];
 };
 
-/*
- * Synchronization primitives.
- * TODO: Move into a separate header file and make an API out of it
- */
+void USBDevice_SAMD21G18x::reset() {
+	usb.CTRLA.bit.SWRST = 1;
+	memset(EP, 0, sizeof(EP));
+	while (usb.SYNCBUSY.bit.SWRST) {}
+	usb.DESCADD.reg = (uint32_t)(&EP);
+}
 
-class __Guard {
-public:
-	__Guard() : primask(__get_PRIMASK()), loops(1) {
-		__disable_irq();
-	}
-	~__Guard() {
-		if (primask == 0) {
-			__enable_irq();
-			// http://infocenter.arm.com/help/topic/com.arm.doc.dai0321a/BIHBFEIB.html
-			__ISB();
-		}
-	}
-	uint32_t enter() { return loops--; }
-private:
-	uint32_t primask;
-	uint32_t loops;
-};
+void USBDevice_SAMD21G18x::calibrate() {
+	// Load Pad Calibration data from non-volatile memory
+	uint32_t *pad_transn_p = (uint32_t *) USB_FUSES_TRANSN_ADDR;
+	uint32_t *pad_transp_p = (uint32_t *) USB_FUSES_TRANSP_ADDR;
+	uint32_t *pad_trim_p   = (uint32_t *) USB_FUSES_TRIM_ADDR;
 
-#define synchronized for (__Guard __guard; __guard.enter(); )
+	uint32_t pad_transn = (*pad_transn_p & USB_FUSES_TRANSN_Msk) >> USB_FUSES_TRANSN_Pos;
+	uint32_t pad_transp = (*pad_transp_p & USB_FUSES_TRANSP_Msk) >> USB_FUSES_TRANSP_Pos;
+	uint32_t pad_trim   = (*pad_trim_p   & USB_FUSES_TRIM_Msk  ) >> USB_FUSES_TRIM_Pos;
+
+	if (pad_transn == 0x1F)  // maximum value (31)
+		pad_transn = 5;
+	if (pad_transp == 0x1F)  // maximum value (31)
+		pad_transp = 29;
+	if (pad_trim == 0x7)     // maximum value (7)
+		pad_trim = 3;
+
+	usb.PADCAL.bit.TRANSN = pad_transn;
+	usb.PADCAL.bit.TRANSP = pad_transp;
+	usb.PADCAL.bit.TRIM   = pad_trim;
+}
 
 /*
  * USB EP generic handlers.
@@ -212,8 +207,6 @@ public:
 	virtual void handleEndpoint() = 0;
 	virtual uint32_t recv(void *_data, uint32_t len) = 0;
 	virtual uint32_t available() const = 0;
-
-	virtual void init() = 0;
 };
 
 class DoubleBufferedEPOutHandler : public EPHandler {
@@ -241,7 +234,6 @@ public:
 		free((void*)data0);
 		free((void*)data1);
 	}
-	void init() {};
 
 	virtual uint32_t recv(void *_data, uint32_t len)
 	{
@@ -386,3 +378,4 @@ private:
 
 	volatile bool notify;
 };
+
