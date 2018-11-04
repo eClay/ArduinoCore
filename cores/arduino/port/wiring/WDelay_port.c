@@ -62,7 +62,7 @@ void SysTick_DefaultHandler(void)
 {
   // Increment tick count each ms
   _ulTickCount++;
-//  tickReset();
+  tickReset();
 }
 
 #ifdef __cplusplus
