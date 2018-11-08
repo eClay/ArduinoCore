@@ -1,5 +1,5 @@
-#ifndef Pins_Arduino_h
-#define Pins_Arduino_h
+#ifndef PINS_ARDUINO_H
+#define PINS_ARDUINO_H
 
 #include <avr/pgmspace.h>
 
@@ -229,5 +229,5 @@ const uint8_t PROGMEM digital_pin_to_timer_PGM[] = {
 #define SERIAL_PORT_MONITOR   Serial
 #define SERIAL_PORT_HARDWARE  Serial
 
-#endif
+#endif  // PINS_ARDUINO_H
 

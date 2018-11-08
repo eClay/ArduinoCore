@@ -18,14 +18,14 @@
 
 #if defined(USBCON)
 
-#include <Arduino.h>
+#include "USBCore.h"
 
 #include "SAMD21_USBDevice.h"
-#include "api/PluggableUSB.h"
 #include "USBAPI.h"
-#include "USBCore.h"
 #include "USBDesc.h"
 #include "USB_host.h"
+
+#include "../arduino/A_PluggableUSB.h"
 
 #include <stdlib.h>
 #include <stdio.h>

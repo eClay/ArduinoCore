@@ -6,7 +6,7 @@
  * TODO: Move into a separate header file and make an API out of it
  */
 
-#include "sam.h"
+#include "samd21a/include/sam.h"
 
 #include <stdint.h>
 

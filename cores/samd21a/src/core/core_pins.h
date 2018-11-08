@@ -1,0 +1,20 @@
+#ifndef CORE_PINS_H
+#define CORE_PINS_H
+
+typedef enum
+{
+  PINCFG_INPUT = 0,
+  PINCFG_OUTPUT,
+  PINCFG_SERCOM,
+  PINCFG_INT,
+  PINCFG_AREF,
+  PINCFG_ADC,
+  PINCFG_AC,
+  PINCFG_DAC,
+  PINCFG_I2S,
+  PINCFG_USB,
+  PINCFG_SWD,
+  PINCFG_GCLK
+} pin_configuration_t;
+
+#endif  // CORE_PINS_H

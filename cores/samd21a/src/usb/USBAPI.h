@@ -16,7 +16,8 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#pragma once
+#ifndef USBAPI_H
+#define USBAPI_H
 
 #define HSTPIPCFG_PTYPE_BLK 1
 #define HSTPIPCFG_PTOKEN_IN 2
@@ -29,9 +30,9 @@
 
 #if defined __cplusplus
 
-#include "api/Stream.h"
-#include "api/RingBuffer.h"
-#include "api/USBAPI.h"
+#include "../arduino/A_Stream.h"
+#include "../arduino/A_RingBuffer.h"
+#include "../arduino/A_USBAPI.h"
 
 //================================================================================
 // USB
@@ -182,3 +183,5 @@ uint32_t		CDC_GetDescriptor(uint32_t i);
 bool	CDC_Setup(USBSetup& setup);
 
 #endif  // __cplusplus
+
+#endif  // USBAPI_H

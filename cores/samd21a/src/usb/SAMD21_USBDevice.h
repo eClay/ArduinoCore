@@ -18,13 +18,12 @@
 
 #pragma once
 
-#include <Arduino.h>
-
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdint.h>
+#include <string.h>
 
-#include "sync.h"
+#include "../core/core_sync.h"
 
 typedef uint8_t ep_t;
 

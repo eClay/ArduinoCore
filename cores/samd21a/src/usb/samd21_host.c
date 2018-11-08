@@ -22,7 +22,7 @@
 #include <stdint.h>
 #include <string.h>
 
-#include "Arduino.h"
+#include "../arduino/A_Digital.h"
 #include "variant.h"
 #include "USB_host.h"
 #include "samd21_host.h"

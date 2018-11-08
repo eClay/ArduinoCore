@@ -20,10 +20,10 @@
 #include "USBCore.h"
 #include "USBDesc.h"
 
-#include "api/WDelay.h"
-#include "api/WTime.h"
+#include "../arduino/A_Delay.h"
+#include "../arduino/A_Time.h"
 
-#include "Reset.h" // Needed for auto-reset with 1200bps port touch
+#include "../core/core_reset.h" // Needed for auto-reset with 1200bps port touch
 
 #include "sam.h"
 

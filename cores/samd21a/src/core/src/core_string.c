@@ -1,4 +1,4 @@
-#include "WString_port.h"
+#include "../core_string.h"
 
 #include <stdio.h>
 
