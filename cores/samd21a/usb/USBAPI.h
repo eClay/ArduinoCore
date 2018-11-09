@@ -30,9 +30,9 @@
 
 #if defined __cplusplus
 
-#include "../arduino/A_Stream.h"
-#include "../arduino/A_RingBuffer.h"
-#include "../arduino/A_USBAPI.h"
+#include "arduino/A_Stream.h"
+#include "arduino/A_RingBuffer.h"
+#include "arduino/A_USBAPI.h"
 
 //================================================================================
 // USB

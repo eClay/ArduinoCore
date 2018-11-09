@@ -19,7 +19,7 @@
 #ifndef VARIANT_H
 #define VARIANT_H
 
-#include "src/usb/USBAPI.h"
+#include "usb/USBAPI.h"
 
 #include <stdint.h>
 

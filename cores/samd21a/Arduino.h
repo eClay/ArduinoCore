@@ -1,5 +1,3 @@
-#include "src/arduino/ArduinoAPI.h"
-
-#include "src/core/core.h"
+#include "arduino/ArduinoAPI.h"
 
 #include "variant.h"

@@ -1,12 +1,8 @@
 
-#ifndef _SYNC_H_
-#define _SYNC_H_
-/*
- * Synchronization primitives.
- * TODO: Move into a separate header file and make an API out of it
- */
+#ifndef CORE_SYNC_H
+#define CORE_SYNC_H
 
-#include "samd21a/include/sam.h"
+#include "sam.h"
 
 #include <stdint.h>
 
@@ -30,4 +26,4 @@ private:
 
 #define synchronized for (__Guard __guard; __guard.enter(); )
 
-#endif
+#endif  // CORE_SYNC_H

@@ -20,10 +20,6 @@
 
 #include "sam.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #define NVM_MEMORY ((volatile uint16_t *)0x000000)
 
 #if (ARDUINO_SAMD_VARIANT_COMPLIANCE >= 10610)
@@ -84,7 +80,3 @@ void tickReset() {
 	if (ticks == 0)
 		banzai();
 }
-
-#ifdef __cplusplus
-}
-#endif
