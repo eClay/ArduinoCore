@@ -25,7 +25,7 @@
 
 #include "core/reset.h" // Needed for auto-reset with 1200bps port touch
 
-#include "sam.h"
+#include "processor/sam.h"
 
 #include <stdlib.h>
 #include <stdio.h>

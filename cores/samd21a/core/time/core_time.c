@@ -2,7 +2,7 @@
 
 #include "core/reset.h"
 
-#include "sam.h"
+#include "processor/sam.h"
 
 
 static volatile uint32_t _tickCount_mS = 0;

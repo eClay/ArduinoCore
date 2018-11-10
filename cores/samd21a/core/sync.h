@@ -2,7 +2,7 @@
 #ifndef CORE_SYNC_H
 #define CORE_SYNC_H
 
-#include "sam.h"
+#include "processor/sam.h"
 
 #include <stdint.h>
 

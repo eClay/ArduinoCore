@@ -18,7 +18,7 @@
 
 #include "core/reset.h"
 
-#include "sam.h"
+#include "processor/sam.h"
 
 #include <stdbool.h>
 

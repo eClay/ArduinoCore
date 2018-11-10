@@ -1,10 +1,10 @@
 {
     "files.associations": {
-      "sam.h": "c",
+      "processor/sam.h": "c",
       "samd21g18a.h": "c",
       "wdigital.h": "c",
       "cstdlib": "cpp",
-      "core_peripheral_port.h": "c",
+      "processor_port.h": "c",
       "utils_repeat_macro.h": "c",
       "utils_increment_macro.h": "c",
       "a_digital.h": "c",
@@ -13,7 +13,9 @@
       "core_digital.h": "c",
       "a_types.h": "c",
       "core_reset.h": "c",
-      "port.h": "c"
+      "port.h": "c",
+      "stdbool.h": "c",
+      "samd21.h": "c"
     },
     "editor.tabSize": 2
   }

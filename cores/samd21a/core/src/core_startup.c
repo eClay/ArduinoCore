@@ -19,7 +19,7 @@
 #include "core/time.h"
 #include "variant.h"
 
-#include "sam.h"
+#include "processor/sam.h"
 
 #include <stdio.h>
 
