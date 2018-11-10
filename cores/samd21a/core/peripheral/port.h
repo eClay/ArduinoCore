@@ -6,7 +6,6 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-#include "utils/utils_increment_macro.h"
 #include "utils/utils_repeat_macro.h"
 
 
@@ -19,7 +18,7 @@ typedef enum
   CORE_PERIPHERAL_PORT_GROUP_PA = 0,
   CORE_PERIPHERAL_PORT_GROUP_PB = 1,
   NUM_CORE_PERIPHERAL_PORT_GROUP,
-  NOT_A_CORE_PERIPHERAL_PORT_GROUP = NUM_CORE_PERIPHERAL_PORT_GROUPS
+  NOT_A_CORE_PERIPHERAL_PORT_GROUP = NUM_CORE_PERIPHERAL_PORT_GROUP
 } core_peripheral_port_group_t;
 
 typedef uint8_t core_peripheral_port_pin_t;
@@ -38,14 +37,16 @@ typedef enum
   CORE_PERIPHERAL_PORT_PULL_OFF = 0,
   CORE_PERIPHERAL_PORT_PULL_UP,
   CORE_PERIPHERAL_PORT_PULL_DOWN,
-  NUM_CORE_PERIPHERAL_PORT_PULL
+  NUM_CORE_PERIPHERAL_PORT_PULL,
+  CORE_PERIPHERAL_PORT_PULL_INVALID = NUM_CORE_PERIPHERAL_PORT_PULL
 } core_peripheral_port_pull_t;
 
 typedef enum
 {
   CORE_PERIPHERAL_PORT_STRENGTH_NORMAL = 0,
   CORE_PERIPHERAL_PORT_STRENGTH_HIGH,
-  NUM_CORE_PERIPHERAL_PORT_STRENGTH
+  NUM_CORE_PERIPHERAL_PORT_STRENGTH,
+  CORE_PERIPHERAL_PORT_STRENGTH_INVALID = NUM_CORE_PERIPHERAL_PORT_STRENGTH
 } core_peripheral_port_strength_t;
 
 typedef enum
@@ -177,14 +178,17 @@ core_peripheral_port_pinmux_t CORE_PERIPHERAL_PORT_PinMuxGet(
     core_peripheral_port_pin_t        pin
   );
 
+// REG_PORT_IOBUS registers not defined in SAMD21 package.  Use following
+//   macro to calculate correct address of IOBUS registers.
+#define REG_PORT_IOBUS(reg_port)  (*((RwReg  *)PORT_IOBUS + (&reg_port - (RwReg  *)PORT)))
 
 #define CASE_PIN_WRITE_REG_PINMASK(register, pin)           \
-    case pin: REG_PORT_##register = (_UL_(1) <<  pin);  break;
+    case pin: REG_PORT_IOBUS(REG_PORT_##register) = (_UL_(1) <<  pin);  break;
 
 #define SWITCH_PIN_WRITE_REG_PINMASK(register, pin)         \
     switch( pin )                                           \
     {                                                       \
-      REPEAT_MACRO(CASE_SET_REG_PINMASK, register, NUM_CORE_PERIPHERAL_PORT_PINS)      \
+      REPEAT_MACRO(CASE_PIN_WRITE_REG_PINMASK, register, NUM_CORE_PERIPHERAL_PORT_PINS)      \
       default:  break;                                      \
     }
 
@@ -193,14 +197,17 @@ core_peripheral_port_pinmux_t CORE_PERIPHERAL_PORT_PinMuxGet(
     {                                                       \
       case CORE_PERIPHERAL_PORT_GROUP_PA:                   \
         SWITCH_PIN_WRITE_REG_PINMASK( register##0, pin )    \
+        break;                                              \
       case CORE_PERIPHERAL_PORT_GROUP_PB:                   \
         SWITCH_PIN_WRITE_REG_PINMASK( register##1, pin )    \
-      break;                                                \
+        break;                                              \
+      default:                                              \
+        break;                                              \
     }
 
 
 #define CASE_PIN_READ_REG_PINMASK(register, pin)              \
-    case pin: return (REG_PORT_##register & (_UL_(1) <<  pin)) != 0;
+    case pin: return (REG_PORT_IOBUS(REG_PORT_##register) & (_UL_(1) <<  pin)) != 0;
 
 #define SWITCH_PIN_READ_REG_PINMASK(register, pin)            \
     switch( pin )                                             \
@@ -216,12 +223,13 @@ core_peripheral_port_pinmux_t CORE_PERIPHERAL_PORT_PinMuxGet(
         SWITCH_PIN_READ_REG_PINMASK( register##0, pin )       \
       case CORE_PERIPHERAL_PORT_GROUP_PB:                     \
         SWITCH_PIN_READ_REG_PINMASK( register##1, pin )       \
-      break;                                                  \
+      default:                                                \
+        return false;                                         \
     }
 
 
 static inline void CORE_PERIPHERAL_PORT_DirectionSet(
-    core_peripheral_port_t            port,
+    core_peripheral_port_group_t      port,
     core_peripheral_port_pin_t        pin,
     core_peripheral_port_direction_t  direction
   )
@@ -244,7 +252,7 @@ static inline void CORE_PERIPHERAL_PORT_DirectionSet(
 }
 
 static inline core_peripheral_port_direction_t CORE_PERIPHERAL_PORT_DirectionGet(
-    core_peripheral_port_t            port,
+    core_peripheral_port_group_t      port,
     core_peripheral_port_pin_t        pin
   )
 {
@@ -260,7 +268,7 @@ static inline core_peripheral_port_direction_t CORE_PERIPHERAL_PORT_DirectionGet
 
 
 static inline void CORE_PERIPHERAL_PORT_OutputSet(
-    core_peripheral_port_t            port,
+    core_peripheral_port_group_t      port,
     core_peripheral_port_pin_t        pin,
     core_peripheral_port_pinstate_t   state
   )
@@ -278,12 +286,12 @@ static inline void CORE_PERIPHERAL_PORT_OutputSet(
   }
   else
   {
-    CORE_PERIPHERAL_PORT_OutputSet_noinline( port, pin, direction );
+    CORE_PERIPHERAL_PORT_OutputSet_noinline( port, pin, state );
   }
 }
 
 static inline void CORE_PERIPHERAL_PORT_OutputToggle(
-    core_peripheral_port_t            port,
+    core_peripheral_port_group_t      port,
     core_peripheral_port_pin_t        pin
   )
 {
@@ -298,7 +306,7 @@ static inline void CORE_PERIPHERAL_PORT_OutputToggle(
 }
 
 static inline core_peripheral_port_pinstate_t CORE_PERIPHERAL_PORT_OutputGet(
-    core_peripheral_port_t            port,
+    core_peripheral_port_group_t      port,
     core_peripheral_port_pin_t        pin
   )
 {
@@ -314,7 +322,7 @@ static inline core_peripheral_port_pinstate_t CORE_PERIPHERAL_PORT_OutputGet(
 
 
 static inline core_peripheral_port_pinstate_t CORE_PERIPHERAL_PORT_InputGet(
-    core_peripheral_port_t            port,
+    core_peripheral_port_group_t      port,
     core_peripheral_port_pin_t        pin
   )
 {

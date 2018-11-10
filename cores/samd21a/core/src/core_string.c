@@ -1,4 +1,4 @@
-#include "../core_string.h"
+#include "core/string.h"
 
 #include <stdio.h>
 

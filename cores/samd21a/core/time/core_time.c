@@ -1,6 +1,6 @@
-#include "core/core_time.h"
+#include "core/time.h"
 
-#include "core/core_reset.h"
+#include "core/reset.h"
 
 #include "sam.h"
 
@@ -8,7 +8,7 @@
 static volatile uint32_t _tickCount_mS = 0;
 
 
-uint32_t CORE_TIME_Read_mS( void );
+uint32_t CORE_TIME_Read_mS( void )
 {
   return _tickCount_mS;
 }
@@ -17,7 +17,7 @@ uint32_t CORE_TIME_Read_mS( void );
 // Theory: repeatedly take readings of SysTick counter, millis counter and SysTick interrupt pending flag.
 // When it appears that millis counter and pending is stable and SysTick hasn't rolled over, use these
 // values to calculate micros. If there is a pending SysTick, add one to the millis counter in the calculation.
-uint32_t CORE_TIME_Read_uS( void );
+uint32_t CORE_TIME_Read_uS( void )
 {
   uint32_t ticks, ticks2;
   uint32_t pend, pend2;
@@ -44,7 +44,7 @@ uint32_t CORE_TIME_Read_uS( void );
 
 void CORE_TIME_Delay_mS( uint32_t mS )
 {
-  if ( ms == 0 )
+  if ( mS == 0 )
   {
     return;
   }
@@ -54,7 +54,7 @@ void CORE_TIME_Delay_mS( uint32_t mS )
   do
   {
 //    yield() ;
-  } while ( _tickCount_mS - start < ms ) ;
+  } while ( _tickCount_mS - start < mS ) ;
 }
 
 void CORE_TIME_Task(void)

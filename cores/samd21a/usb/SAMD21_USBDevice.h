@@ -23,7 +23,7 @@
 #include <stdint.h>
 #include <string.h>
 
-#include "../core/core_sync.h"
+#include "core/sync.h"
 
 typedef uint8_t ep_t;
 

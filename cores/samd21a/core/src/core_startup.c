@@ -16,6 +16,7 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
+#include "core/time.h"
 #include "variant.h"
 
 #include "sam.h"
@@ -301,12 +302,10 @@ void SystemInit2( void )
   NVMCTRL->CTRLB.bit.MANW = 1;
 }
 
-extern void SysTick_DefaultHandler(void);
-
 void SysTick_Handler(void)
 {
 //   if (sysTickHook())
 //     return;
-  SysTick_DefaultHandler();
+  CORE_TIME_Task();
 }
 

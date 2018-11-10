@@ -16,9 +16,12 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#include "../core_reset.h"
+#include "core/reset.h"
 
 #include "sam.h"
+
+#include <stdbool.h>
+
 
 #define NVM_MEMORY ((volatile uint16_t *)0x000000)
 
@@ -65,15 +68,18 @@ reset:
 
 static int ticks = -1;
 
-void initiateReset(int _ticks) {
-	ticks = _ticks;
+void CORE_RESET_Initiate( uint32_t delay_ms )
+{
+	ticks = delay_ms;
 }
 
-void cancelReset() {
+void CORE_RESET_Cancel( void )
+{
 	ticks = -1;
 }
 
-void tickReset() {
+void CORE_RESET_Task( void )
+{
 	if (ticks == -1)
 		return;
 	ticks--;

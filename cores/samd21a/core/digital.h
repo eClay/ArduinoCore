@@ -1,13 +1,16 @@
 #ifndef ECLAY_CORE_DIGITAL_H
 #define ECLAY_CORE_DIGITAL_H
 
-#include "peripheral/port/core_peripheral_port.h"
+#include "core/peripheral/port.h"
 
 #include <stdint.h>
 
-#include "utils/utils_increment_macro.h"
 #include "utils/utils_repeat_macro.h"
 
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 typedef uint32_t  core_digital_pin_t;
 
@@ -19,47 +22,74 @@ typedef core_peripheral_port_pinstate_t  core_digital_pinstate_t;
 #define CORE_DIGITAL_PINSTATE_LOW       CORE_PERIPHERAL_PORT_PINSTATE_LOW
 #define CORE_DIGITAL_PINSTATE_HIGH      CORE_PERIPHERAL_PORT_PINSTATE_HIGH
 
+typedef core_peripheral_port_pull_t     core_digital_pull_t;
+#define CORE_DIGITAL_PULL_OFF           CORE_PERIPHERAL_PORT_PULL_OFF
+#define CORE_DIGITAL_PULL_UP            CORE_PERIPHERAL_PORT_PULL_UP
+#define CORE_DIGITAL_PULL_DOWN          CORE_PERIPHERAL_PORT_PULL_DOWN
+#define CORE_DIGITAL_PULL_INVALID       CORE_PERIPHERAL_PORT_PULL_INVALID
 
-static inline void CORE_DIGITAL_DirectionSet_pin(
+
+static inline void CORE_DIGITAL_DirectionSet(
     core_digital_pin_t        pin,
-    core_digital_pinstate_t   state
+    core_digital_direction_t  direction
   ) __attribute__((always_inline, unused));
 
-void CORE_DIGITAL_DirectionSet_pin_variable(
+void CORE_DIGITAL_DirectionSet_noinline(
     core_digital_pin_t        pin,
     core_digital_direction_t  direction
   );
 
-core_digital_direction_t CORE_DIGITAL_DirectionGet_pin(
+static inline core_digital_direction_t CORE_DIGITAL_DirectionGet(
+    core_digital_pin_t        pin
+  ) __attribute__((always_inline, unused));
+
+core_digital_direction_t CORE_DIGITAL_DirectionGet_noinline(
     core_digital_pin_t        pin
   );
 
 
-static inline void CORE_DIGITAL_OutputSet_pin(
+static inline void CORE_DIGITAL_OutputSet(
     core_digital_pin_t        pin,
     core_digital_pinstate_t   state
   ) __attribute__((always_inline, unused));
 
-void CORE_DIGITAL_OutputSet_pin_variable(
+void CORE_DIGITAL_OutputSet_noinline(
     core_digital_pin_t        pin,
     core_digital_pinstate_t   state
   );
 
-
-static inline void CORE_DIGITAL_OutputToggle_pin(
+static inline void CORE_DIGITAL_OutputToggle(
     core_digital_pin_t        pin
   ) __attribute__((always_inline, unused));
 
-void CORE_DIGITAL_OutputToggle_pin_variable(
+void CORE_DIGITAL_OutputToggle_noinline(
+    core_digital_pin_t        pin
+  );
+
+static inline core_digital_pinstate_t CORE_DIGITAL_OutputGet(
+    core_digital_pin_t        pin
+  ) __attribute__((always_inline, unused));
+
+core_digital_pinstate_t CORE_DIGITAL_OutputGet_noinline(
     core_digital_pin_t        pin
   );
 
 
-static inline core_digital_pinstate_t CORE_DIGITAL_OutputRead_pin(
+static inline core_digital_pinstate_t CORE_DIGITAL_InputGet(
     core_digital_pin_t        pin
   ) __attribute__((always_inline, unused));
 
-core_digital_pinstate_t CORE_DIGITAL_OutputRead_pin_variable(
+core_digital_pinstate_t CORE_DIGITAL_InputGet_noinline(
+    core_digital_pin_t        pin
+  );
+
+
+void CORE_DIGITAL_PullSet(
+    core_digital_pin_t        pin,
+    core_digital_pull_t       pull
+  );
+
+core_digital_pull_t CORE_DIGITAL_PullGet(
     core_digital_pin_t        pin
   );
 
@@ -121,21 +151,44 @@ core_digital_pinstate_t CORE_DIGITAL_OutputRead_pin_variable(
 #define CORE_DIGITAL_PIN_MAX  49
 
 
-#define CASE_CALL_PIN_FUNCTION_SET(function, pin)   \
+
+#define CASE_CALL_PIN_FUNCTION(function, pin)   \
+    case pin:  function(CORE_DIGITAL_PIN_##pin);  break;
+
+#define SWITCH_CALL_PIN_FUNCTION(function, pin)  \
+    switch( pin )   \
+    {   \
+      REPEAT_MACRO(CASE_CALL_PIN_FUNCTION, function, CORE_DIGITAL_PIN_MAX)    \
+      default:  break;    \
+    }
+
+
+#define CASE_CALL_PIN_FUNCTION_SET_VALUE(function, pin)   \
     case pin:  function(CORE_DIGITAL_PIN_##pin, value);  break;
 
-#define SWITCH_CALL_PIN_FUNCTION_SET(function, pin, value)   \ 
-    switch( pin )   \ 
+#define SWITCH_CALL_PIN_FUNCTION_SET_VALUE(function, pin)  \
+    switch( pin )   \
     {   \
-      REPEAT_MACRO(CASE_CALL_PIN_FUNCTION_SET, function, CORE_DIGITAL_PIN_MAX)    \
+      REPEAT_MACRO(CASE_CALL_PIN_FUNCTION_SET_VALUE, function, CORE_DIGITAL_PIN_MAX)    \
+      default:  break;    \
+    }
+
+
+#define CASE_CALL_PIN_FUNCTION_SET_TRUE(function, pin)   \
+    case pin:  function(CORE_DIGITAL_PIN_##pin, true);  break;
+
+#define SWITCH_CALL_PIN_FUNCTION_SET_TRUE(function, pin)  \
+    switch( pin )   \
+    {   \
+      REPEAT_MACRO(CASE_CALL_PIN_FUNCTION_SET_TRUE, function, CORE_DIGITAL_PIN_MAX)    \
       default:  break;    \
     }
 
 
 #define CASE_CALL_PIN_FUNCTION_GET(function, pin)   \
-    case pin:  return function(CORE_DIGITAL_PIN_##pin);  break;
+    case pin:  return function(CORE_DIGITAL_PIN_##pin);
 
-#define SWITCH_CALL_PIN_FUNCTION_GET(function, pin)
+#define SWITCH_CALL_PIN_FUNCTION_GET(function, pin) \
     switch( pin )   \ 
     {   \
       REPEAT_MACRO(CASE_CALL_PIN_FUNCTION_GET, function, CORE_DIGITAL_PIN_MAX)    \
@@ -143,48 +196,98 @@ core_digital_pinstate_t CORE_DIGITAL_OutputRead_pin_variable(
     }
 
 
-static inline void CORE_DIGITAL_DirectionSet_pin(
+static inline void CORE_DIGITAL_DirectionSet(
     core_digital_pin_t        pin,
-    core_digital_direction_t  direction
+    core_digital_direction_t  value
   )
 {
   if( __builtin_constant_p(pin) )
   {
-    CALL_PIN_FUNCTION_SET( CORE_PERIPHERAL_PORT_DirectionSet_pin, pin, direction );
+    SWITCH_CALL_PIN_FUNCTION_SET_VALUE( CORE_PERIPHERAL_PORT_DirectionSet, pin );
+    SWITCH_CALL_PIN_FUNCTION_SET_TRUE( CORE_PERIPHERAL_PORT_InputEnableSet, pin );
   }
   else
   {
-    CORE_DIGITAL_DirectionSet_pin_variable( pin, direction );
+    CORE_DIGITAL_DirectionSet_noinline( pin, value );
   }
 }
 
-static inline void CORE_DIGITAL_OutputSet_pin(
-    core_digital_pin_t        pin,
-    core_digital_pinstate_t   state
-  )
-{
-  if( __builtin_constant_p(pin) )
-  {
-    CALL_PIN_FUNCTION_SET( CORE_PERIPHERAL_PORT_OutputSet_pin, pin, state );
-  }
-  else
-  {
-    CORE_DIGITAL_OutputSet_pin_variable( pin, state );
-  }
-}
-
-static inline void CORE_DIGITAL_OutputToggle_pin(
+static inline core_digital_direction_t CORE_DIGITAL_DirectionGet(
     core_digital_pin_t        pin
   )
 {
   if( __builtin_constant_p(pin) )
   {
-    CALL_PIN_FUNCTION_SET( CORE_PERIPHERAL_PORT_OutputToggle_pin, pin );
+    SWITCH_CALL_PIN_FUNCTION_GET( CORE_PERIPHERAL_PORT_DirectionGet, pin );
   }
   else
   {
-    CORE_DIGITAL_OutputToggle_pin_variable( pin );
+    return CORE_DIGITAL_DirectionGet_noinline( pin );
   }
 }
+
+
+static inline void CORE_DIGITAL_OutputSet(
+    core_digital_pin_t        pin,
+    core_digital_pinstate_t   value
+  )
+{
+  if( __builtin_constant_p(pin) )
+  {
+    SWITCH_CALL_PIN_FUNCTION_SET_VALUE( CORE_PERIPHERAL_PORT_OutputSet, pin );
+  }
+  else
+  {
+    CORE_DIGITAL_OutputSet_noinline( pin, value );
+  }
+}
+
+static inline void CORE_DIGITAL_OutputToggle(
+    core_digital_pin_t        pin
+  )
+{
+  if( __builtin_constant_p(pin) )
+  {
+    SWITCH_CALL_PIN_FUNCTION( CORE_PERIPHERAL_PORT_OutputToggle, pin );
+  }
+  else
+  {
+    CORE_DIGITAL_OutputToggle_noinline( pin );
+  }
+}
+
+static inline core_digital_pinstate_t CORE_DIGITAL_OutputGet(
+    core_digital_pin_t        pin
+  )
+{
+  if( __builtin_constant_p(pin) )
+  {
+    SWITCH_CALL_PIN_FUNCTION_GET( CORE_PERIPHERAL_PORT_OutputGet, pin );
+  }
+  else
+  {
+    return CORE_DIGITAL_OutputGet_noinline( pin );
+  }
+}
+
+
+static inline core_digital_pinstate_t CORE_DIGITAL_InputGet(
+    core_digital_pin_t        pin
+  )
+{
+  if( __builtin_constant_p(pin) )
+  {
+    SWITCH_CALL_PIN_FUNCTION_GET( CORE_PERIPHERAL_PORT_InputGet, pin );
+  }
+  else
+  {
+    return CORE_DIGITAL_InputGet_noinline( pin );
+  }
+}
+
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif  // ECLAY_CORE_DIGITAL_H

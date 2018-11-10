@@ -1,10 +1,9 @@
-#include "core/core_digital.h"
+#include "core/digital.h"
 
 #include "core/peripheral/port.h"
 
 #include "sam.h"
 
-#include "utils/utils_increment_macro.h"
 #include "utils/utils_repeat_macro.h"
 
 
@@ -12,11 +11,11 @@ typedef struct
 {
   core_peripheral_port_group_t port;
   core_peripheral_port_pin_t   pin;
-} core_digital_pin_t;
+} core_digital_pin_definition_t;
 
-#define CORE_DIGITAL_PIN_DEFINITION(arg, pin)    { CORE_DIGITAL_PIN_##pin },
+#define CORE_DIGITAL_PIN_DEFINITION(noarg, pin)   { CORE_DIGITAL_PIN_##pin },
 
-static const core_digital_pin_t coreDigitalPins[] =
+static const core_digital_pin_definition_t coreDigitalPins[] =
 {
   REPEAT_MACRO(CORE_DIGITAL_PIN_DEFINITION, 0, CORE_DIGITAL_PIN_MAX)
 
@@ -76,158 +75,92 @@ static const core_digital_pin_t coreDigitalPins[] =
 };
 
 
-void CORE_DIGITAL_DirectionSet_pin_variable(
+#define NO_RETURN_VALUE
+
+#define RANGE_CHECK_PIN_PARAMETER(pin, rtnval)    \
+  if( pin  >= CORE_DIGITAL_PIN_MAX )              \
+  {                                               \
+    return rtnval;                                \
+  }
+
+
+void CORE_DIGITAL_DirectionSet_noinline(
     core_digital_pin_t        pin,
     core_digital_direction_t  direction
   )
 {
-  core_peripheral_port_group_t port_group;
-  core_peripheral_port_pin_t port_pin;
+  RANGE_CHECK_PIN_PARAMETER( pin, NO_RETURN_VALUE );
 
-  if( pin >= CORE_DIGITAL_PIN_MAX )
-  {
-    return;
-  }
+  CORE_PERIPHERAL_PORT_DirectionSet( coreDigitalPins[pin].port, coreDigitalPins[pin].pin, direction );
 
-  port_group = coreDigitalPins[pin].port;
-  if( port_group >= NOT_A_CORE_PERIPHERAL_PORT_GROUP )
-  {
-    return;
-  }
-
-  port_pin = coreDigitalPins[pin].pin;
-  port_pinmask = bit(port_pin);
-
-  // Set pin mode according to chapter '22.6.3 I/O Pin Configuration'
-  switch ( direction )
-  {
-    case CORE_DIGITAL_DIRECTION_INPUT:
-      // Set pin to input mode
-      PORT->Group[port_group].PINCFG[port_pin].reg = (uint8_t)(PORT_PINCFG_INEN);
-      PORT->Group[port_group].DIRCLR.reg = port_pinmask;
-      break;
-
-    case INPUT_PULLUP:
-      // Set pin to input mode with pull-up resistor enabled
-      PORT->Group[port_group].PINCFG[port_pin].reg = (uint8_t)(PORT_PINCFG_INEN|PORT_PINCFG_PULLEN);
-      PORT->Group[port_group].DIRCLR.reg = port_pinmask;
-
-      // Enable pull level (cf '22.6.3.2 Input Configuration' and '22.8.7 Data Output Value Set')
-      PORT->Group[port_group].OUTSET.reg = port_pinmask;
-      break;
-
-    case INPUT_PULLDOWN:
-      // Set pin to input mode with pull-down resistor enabled
-      PORT->Group[port_group].PINCFG[port_pin].reg = (uint8_t)(PORT_PINCFG_INEN|PORT_PINCFG_PULLEN);
-      PORT->Group[port_group].DIRCLR.reg = port_pinmask;
-
-      // Enable pull level (cf '22.6.3.2 Input Configuration' and '22.8.6 Data Output Value Clear')
-      PORT->Group[port_group].OUTCLR.reg = port_pinmask;
-      break;
-
-    case OUTPUT:
-      // enable input, to support reading back values, with pullups disabled
-      PORT->Group[port_group].PINCFG[port_pin].reg = (uint8_t)(PORT_PINCFG_INEN);
-
-      CORE_PERIPHERAL_PORT_DirectionSet_pin( port_group, port_pin, CORE_PERIPHERAL_PORT_DIRECTION_OUTPUT );
-      break;
-
-    default:
-      // do nothing
-      break;
-  }
+  // Always enable input reads for digital pins
+  CORE_PERIPHERAL_PORT_InputEnableSet( coreDigitalPins[pin].port, coreDigitalPins[pin].pin, true );
 }
 
-void digitalWrite_variable(pin_size_t pinNumber, PinStatus status)
+core_digital_direction_t CORE_DIGITAL_DirectionGet_noinline(
+    core_digital_pin_t        pin
+  )
 {
-  core_port_t port;
-  uint32_t pinmask;
+  RANGE_CHECK_PIN_PARAMETER( pin, CORE_DIGITAL_DIRECTION_INPUT );
 
-  if( pinNumber >= NUM_CORE_PORT_PINS )
-  {
-    return;
-  }
-
-  port = coreDigitalPins[pinNumber].port;
-  if( port >= NOT_A_CORE_PORT )
-  {
-    return;
-  }
-
-  pinmask = bit(coreDigitalPins[pinNumber].pin);
-
-  switch ( status )
-  {
-    case LOW:
-      PORT->Group[port].OUTCLR.reg = pinmask;
-      break ;
-    case HIGH:
-      PORT->Group[port].OUTSET.reg = pinmask;
-      break ;
-    default:
-      break ;
-  }
+  return CORE_PERIPHERAL_PORT_DirectionGet( coreDigitalPins[pin].port, coreDigitalPins[pin].pin );
 }
 
-void digitalWrite_low(pin_size_t pinNumber)
+
+void CORE_DIGITAL_OutputSet_noinline(
+    core_digital_pin_t        pin,
+    core_digital_pinstate_t   state
+  )
 {
-  core_port_t port;
-  uint32_t pinmask;
+  RANGE_CHECK_PIN_PARAMETER( pin, NO_RETURN_VALUE );
 
-  if( pinNumber >= NUM_CORE_PORT_PINS )
-  {
-    return;
-  }
-
-  port = coreDigitalPins[pinNumber].port;
-  if( port >= NOT_A_CORE_PORT )
-  {
-    return;
-  }
-
-  pinmask = bit(coreDigitalPins[pinNumber].pin);
-
-  PORT->Group[port].OUTCLR.reg = pinmask;
+  CORE_PERIPHERAL_PORT_OutputSet( coreDigitalPins[pin].port, coreDigitalPins[pin].pin, state );
 }
 
-void digitalWrite_high(pin_size_t pinNumber)
+void CORE_DIGITAL_OutputToggle_noinline(
+    core_digital_pin_t        pin
+  )
 {
-  core_port_t port;
-  uint32_t pinmask;
+  RANGE_CHECK_PIN_PARAMETER( pin, NO_RETURN_VALUE );
 
-  if( pinNumber >= NUM_CORE_PORT_PINS )
-  {
-    return;
-  }
-
-  port = coreDigitalPins[pinNumber].port;
-  if( port >= NOT_A_CORE_PORT )
-  {
-    return;
-  }
-
-  pinmask = bit(coreDigitalPins[pinNumber].pin);
-
-  PORT->Group[port].OUTSET.reg = pinmask;
+  CORE_PERIPHERAL_PORT_OutputToggle( coreDigitalPins[pin].port, coreDigitalPins[pin].pin );
 }
 
-PinStatus digitalRead(pin_size_t pinNumber)
+core_digital_pinstate_t CORE_DIGITAL_OutputGet_noinline(
+    core_digital_pin_t        pin
+  )
 {
-  core_port_t port;
-  uint32_t pinmask;
+  RANGE_CHECK_PIN_PARAMETER( pin, CORE_DIGITAL_PINSTATE_LOW );
 
-  if( pinNumber >= NUM_CORE_PORT_PINS )
-  {
-    return LOW;
-  }
+  return CORE_PERIPHERAL_PORT_OutputGet( coreDigitalPins[pin].port, coreDigitalPins[pin].pin );
+}
 
-  port = coreDigitalPins[pinNumber].port;
-  if( port >= NOT_A_CORE_PORT )
-  {
-    return LOW;
-  }
 
-  pinmask = bit(coreDigitalPins[pinNumber].pin);
+core_digital_pinstate_t CORE_DIGITAL_InputGet_noinline(
+    core_digital_pin_t        pin
+  )
+{
+  RANGE_CHECK_PIN_PARAMETER( pin, CORE_DIGITAL_PINSTATE_LOW );
 
-  return (PORT->Group[port].IN.reg & pinmask != 0 );
+  return CORE_PERIPHERAL_PORT_InputGet( coreDigitalPins[pin].port, coreDigitalPins[pin].pin );
+}
+
+
+void CORE_DIGITAL_PullSet(
+    core_digital_pin_t        pin,
+    core_digital_pull_t       pull
+  )
+{
+  RANGE_CHECK_PIN_PARAMETER( pin, NO_RETURN_VALUE );
+
+  CORE_PERIPHERAL_PORT_PullSet( coreDigitalPins[pin].port, coreDigitalPins[pin].pin, pull );
+}
+
+core_digital_pull_t CORE_DIGITAL_PullGet(
+    core_digital_pin_t        pin
+  )
+{
+  RANGE_CHECK_PIN_PARAMETER( pin, CORE_DIGITAL_PULL_INVALID );
+
+  return CORE_PERIPHERAL_PORT_PullGet( coreDigitalPins[pin].port, coreDigitalPins[pin].pin );
 }

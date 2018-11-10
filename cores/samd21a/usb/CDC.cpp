@@ -20,10 +20,10 @@
 #include "USBCore.h"
 #include "USBDesc.h"
 
-#include "../arduino/A_Delay.h"
-#include "../arduino/A_Time.h"
+#include "arduino/A_Delay.h"
+#include "arduino/A_Time.h"
 
-#include "../core/core_reset.h" // Needed for auto-reset with 1200bps port touch
+#include "core/reset.h" // Needed for auto-reset with 1200bps port touch
 
 #include "sam.h"
 
@@ -130,11 +130,11 @@ bool CDC_Setup(USBSetup& setup)
 			// port is open (bit 0 of lineState).
 			if (_usbLineInfo.dwDTERate == 1200 && (_usbLineInfo.lineState & 0x01) == 0)
 			{
-				initiateReset(250);
+				CORE_RESET_Initiate(250);
 			}
 			else
 			{
-				cancelReset();
+				CORE_RESET_Cancel();
 			}
 			return false;
 		}

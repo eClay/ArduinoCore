@@ -318,5 +318,5 @@ extern "C" {
 }
 #endif
 
-#include <utils_increment_macro.h>
+#include "utils_increment_macro.h"
 #endif /* _UTILS_REPEAT_MACRO_H */

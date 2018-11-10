@@ -1,9 +1,4 @@
-#include "core_peripheral_port.h"
-
-#include "arduino/A_Digital.h"
-
-#include "arduino/A_Math.h"
-#include "arduino/A_Types.h"
+#include "core/peripheral/port.h"
 
 #include "sam.h"
 
@@ -13,13 +8,14 @@
 #endif
 
 
-#define RANGE_CHECK_PORT_PIN_PARAMETERS(port, pin)   \
-  if( (port >= NOT_A_CORE_PERIPHERAL_PORT_GROUP) ||  \
-      (pin  >= CORE_PERIPHERAL_PORT_PIN_MAX    ) )   \
-  {                                                  \
-    return;                                          \
-  }
+#define NO_RETURN_VALUE
 
+#define RANGE_CHECK_PORT_PIN_PARAMETERS(port, pin, rtnval)  \
+  if( (port >= NUM_CORE_PERIPHERAL_PORT_GROUP) ||           \
+      (pin  >= NUM_CORE_PERIPHERAL_PORT_PINS ) )            \
+  {                                                         \
+    return rtnval;                                          \
+  }
 
 
 void CORE_PERIPHERAL_PORT_DirectionSet_noinline(
@@ -28,7 +24,7 @@ void CORE_PERIPHERAL_PORT_DirectionSet_noinline(
     core_peripheral_port_direction_t  direction
   )
 {
-  RANGE_CHECK_PORT_PIN_PARAMETERS( port, pin );
+  RANGE_CHECK_PORT_PIN_PARAMETERS( port, pin, NO_RETURN_VALUE );
 
   switch( direction )
   {
@@ -50,7 +46,7 @@ core_peripheral_port_direction_t CORE_PERIPHERAL_PORT_DirectionGet_noinline(
     core_peripheral_port_pin_t        pin
   )
 {
-  RANGE_CHECK_PORT_PIN_PARAMETERS( port, pin );
+  RANGE_CHECK_PORT_PIN_PARAMETERS( port, pin, CORE_PERIPHERAL_PORT_DIRECTION_INPUT );
 
   return (PORT->Group[port].DIR.reg & (_UL_(1) << pin)) != 0;
 }
@@ -62,7 +58,7 @@ void CORE_PERIPHERAL_PORT_OutputSet_noinline(
     core_peripheral_port_pinstate_t   state
   )
 {
-  RANGE_CHECK_PORT_PIN_PARAMETERS( port, pin );
+  RANGE_CHECK_PORT_PIN_PARAMETERS( port, pin, NO_RETURN_VALUE );
 
   switch( state )
   {
@@ -84,7 +80,7 @@ void CORE_PERIPHERAL_PORT_OutputToggle_noinline(
     core_peripheral_port_pin_t        pin
   )
 {
-  RANGE_CHECK_PORT_PIN_PARAMETERS( port, pin );
+  RANGE_CHECK_PORT_PIN_PARAMETERS( port, pin, NO_RETURN_VALUE );
 
   PORT->Group[port].OUTTGL.reg = (_UL_(1) << pin);
 }
@@ -94,7 +90,7 @@ core_peripheral_port_pinstate_t CORE_PERIPHERAL_PORT_OutputGet_noinline(
     core_peripheral_port_pin_t        pin
   )
 {
-  RANGE_CHECK_PORT_PIN_PARAMETERS( port, pin );
+  RANGE_CHECK_PORT_PIN_PARAMETERS( port, pin, CORE_PERIPHERAL_PORT_PINSTATE_LOW );
 
   return (PORT->Group[port].OUT.reg & (_UL_(1) << pin)) != 0;
 }
@@ -105,7 +101,7 @@ core_peripheral_port_pinstate_t CORE_PERIPHERAL_PORT_InputGet_noinline(
     core_peripheral_port_pin_t        pin
   )
 {
-  RANGE_CHECK_PORT_PIN_PARAMETERS( port, pin );
+  RANGE_CHECK_PORT_PIN_PARAMETERS( port, pin, CORE_PERIPHERAL_PORT_PINSTATE_LOW );
 
   return (PORT->Group[port].IN.reg & (_UL_(1) << pin)) != 0;
 }
@@ -117,7 +113,7 @@ void CORE_PERIPHERAL_PORT_InputEnableSet(
     bool                              enable
   )
 {
-  RANGE_CHECK_PORT_PIN_PARAMETERS( port, pin );
+  RANGE_CHECK_PORT_PIN_PARAMETERS( port, pin, NO_RETURN_VALUE );
 
   if( enable )
   {
@@ -134,7 +130,7 @@ bool CORE_PERIPHERAL_PORT_InputEnableGet(
     core_peripheral_port_pin_t        pin
   )
 {
-  RANGE_CHECK_PORT_PIN_PARAMETERS( port, pin );
+  RANGE_CHECK_PORT_PIN_PARAMETERS( port, pin, false );
 
   return (PORT->Group[port].PINCFG[pin].reg & PORT_PINCFG_INEN) != 0;
 }
@@ -146,7 +142,7 @@ void CORE_PERIPHERAL_PORT_PullSet(
     core_peripheral_port_pull_t       pull
   )
 {
-  RANGE_CHECK_PORT_PIN_PARAMETERS( port, pin );
+  RANGE_CHECK_PORT_PIN_PARAMETERS( port, pin, NO_RETURN_VALUE );
 
   switch( pull )
   {
@@ -155,7 +151,7 @@ void CORE_PERIPHERAL_PORT_PullSet(
       break;
 
     case CORE_PERIPHERAL_PORT_PULL_UP:
-      if( !(PORT->Group[port].DIR & (_UL_(1) << pin)) )
+      if( !(PORT->Group[port].DIR.reg & (_UL_(1) << pin)) )
       {
         // Pull up is controlled by output register.
         // Set only if pin is configured as input.
@@ -165,7 +161,7 @@ void CORE_PERIPHERAL_PORT_PullSet(
       break;
 
     case CORE_PERIPHERAL_PORT_PULL_DOWN:
-      if( !(PORT->Group[port].DIR & (_UL_(1) << pin)) )
+      if( !(PORT->Group[port].DIR.reg & (_UL_(1) << pin)) )
       {
         // Pull down is controlled by output register.
         // Set only if pin is configured as input.
@@ -184,7 +180,7 @@ core_peripheral_port_pull_t CORE_PERIPHERAL_PORT_PullGet(
     core_peripheral_port_pin_t        pin
   )
 {
-  RANGE_CHECK_PORT_PIN_PARAMETERS( port, pin );
+  RANGE_CHECK_PORT_PIN_PARAMETERS( port, pin, CORE_PERIPHERAL_PORT_PULL_INVALID );
 
   if( PORT->Group[port].PINCFG[pin].reg & PORT_PINCFG_PULLEN )
   {
@@ -210,7 +206,7 @@ void CORE_PERIPHERAL_PORT_DriveStrengthSet(
     core_peripheral_port_strength_t   strength
   )
 {
-  RANGE_CHECK_PORT_PIN_PARAMETERS( port, pin );
+  RANGE_CHECK_PORT_PIN_PARAMETERS( port, pin, NO_RETURN_VALUE );
 
   switch( strength )
   {
@@ -232,13 +228,15 @@ core_peripheral_port_strength_t CORE_PERIPHERAL_PORT_DriveStrengthGet(
     core_peripheral_port_pin_t        pin
   )
 {
+  RANGE_CHECK_PORT_PIN_PARAMETERS( port, pin, CORE_PERIPHERAL_PORT_STRENGTH_INVALID );
+
   if( PORT->Group[port].PINCFG[pin].reg & PORT_PINCFG_DRVSTR )
   {
     return CORE_PERIPHERAL_PORT_STRENGTH_HIGH;
   }
   else
   {
-    return CORE_PERIPHERAL_PORT_STRENGTH_NORMAL
+    return CORE_PERIPHERAL_PORT_STRENGTH_NORMAL;
   }
 }
 
@@ -249,9 +247,9 @@ void CORE_PERIPHERAL_PORT_PinMuxSet(
     core_peripheral_port_pinmux_t     mux
   )
 {
-  RANGE_CHECK_PORT_PIN_PARAMETERS( port, pin );
+  RANGE_CHECK_PORT_PIN_PARAMETERS( port, pin, NO_RETURN_VALUE );
 
-  bool pinmask_enable = true;
+  bool pinmux_enable = true;
   uint8_t pinmux_bitmask;
   
   switch( mux )
@@ -312,24 +310,24 @@ core_peripheral_port_pinmux_t CORE_PERIPHERAL_PORT_PinMuxGet(
     core_peripheral_port_pin_t        pin
   )
 {
-  RANGE_CHECK_PORT_PIN_PARAMETERS( port, pin );
+  RANGE_CHECK_PORT_PIN_PARAMETERS( port, pin, CORE_PERIPHERAL_PORT_PINMUX_DISABLED );
   
-  uint8_t pinmux_bitmask;
-
   if( PORT->Group[port].PINCFG[pin].reg & PORT_PINCFG_PMUXEN )
   {
-    pinmux_bitmask = PORT->Group[port].PMUX[pin/2].reg;
+    uint8_t pinmux_bitmask = PORT->Group[port].PMUX[pin/2].reg;
 
     if( (pin % 2) == 0 )
     {
+      // Even pin
       pinmux_bitmask = (pinmux_bitmask & PORT_PMUX_PMUXE_Msk) >> PORT_PMUX_PMUXE_Pos;
     }
     else
     {
+      // Odd pin
       pinmux_bitmask = (pinmux_bitmask & PORT_PMUX_PMUXO_Msk) >> PORT_PMUX_PMUXO_Pos;
     }
 
-    switch( mux )
+    switch( pinmux_bitmask )
     {
       case PORT_PMUX_PMUXE_A_Val:
         return CORE_PERIPHERAL_PORT_PINMUX_A;
