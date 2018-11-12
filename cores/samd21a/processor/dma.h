@@ -159,6 +159,10 @@ void PROCESSOR_DMA_PriorityLevelEnable_Set(
     bool enabled
   );
 
+void PROCESSOR_DMA_PriorityLevelRoundRobinEnable_Set(
+    processor_dma_priority_level_t  level,
+    bool enabled
+  );
 
 void PROCESSOR_DMA_CHANNEL_Enable( processor_dma_channel_t channel );
 void PROCESSOR_DMA_CHANNEL_Disable( processor_dma_channel_t channel );

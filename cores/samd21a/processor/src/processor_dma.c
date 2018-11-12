@@ -100,6 +100,35 @@ void PROCESSOR_DMA_PriorirtLevelEnable_Set(
   CRITICAL_SECTION_LEAVE();
 }
 
+void PROCESSOR_DMA_PriorityLevelRoundRobinEnable_Set(
+    processor_dma_priority_level_t  level,
+    bool enabled
+  )
+{
+  CRITICAL_SECTION_ENTER();
+  switch( level )
+  {
+    case PROCESSOR_DMA_PRIORITY_LEVEL_0:
+      DMAC->PRICTRL0.bit.RRLVLEN0 = (enabled ? 1 : 0);
+      break;
+
+    case PROCESSOR_DMA_PRIORITY_LEVEL_1:
+      DMAC->PRICTRL0.bit.RRLVLEN1 = (enabled ? 1 : 0);
+      break;
+
+    case PROCESSOR_DMA_PRIORITY_LEVEL_2:
+      DMAC->PRICTRL0.bit.RRLVLEN2 = (enabled ? 1 : 0);
+      break;
+
+    case PROCESSOR_DMA_PRIORITY_LEVEL_3:
+      DMAC->PRICTRL0.bit.RRLVLEN3 = (enabled ? 1 : 0);
+      break;
+
+    default:
+      break;
+  }
+  CRITICAL_SECTION_LEAVE();
+}
 
 void PROCESSOR_DMA_CHANNEL_Enable( processor_dma_channel_t channel )
 {
@@ -533,29 +562,62 @@ void PROCESSOR_DMA_DESCRIPTOR_NextDescriptor_Set(
   descriptor->DESCADDR.reg = (uint32_t)next;
 }
 
-/**
- * \internal DMAC interrupt handler
- */
-static inline void _dmac_handler(void)
-{
-// 	uint8_t               channel      = hri_dmac_read_INTPEND_ID_bf(DMAC);
-// 	struct _dma_resource *tmp_resource = &_resources[channel];
 
-// 	hri_dmac_write_CHID_reg(DMAC, channel);
-
-// 	if (hri_dmac_get_CHINTFLAG_TERR_bit(DMAC)) {
-// 		hri_dmac_clear_CHINTFLAG_TERR_bit(DMAC);
-// 		tmp_resource->dma_cb.error(tmp_resource);
-// 	} else if (hri_dmac_get_CHINTFLAG_TCMPL_bit(DMAC)) {
-// 		hri_dmac_clear_CHINTFLAG_TCMPL_bit(DMAC);
-// 		tmp_resource->dma_cb.transfer_done(tmp_resource);
-// 	}
-}
-
-/**
- * \brief DMAC interrupt handler
- */
 void DMAC_Handler(void)
 {
-	_dmac_handler();
+  processor_dma_channel_t channel;
+  uint8_t flags;
+
+  // Enter critical section to ensure that we have complete control of 
+  //   CHID register while processing the interrupt flags.
+  // Logic that checks the flags will limit processing to only one case
+  //   for each pass through the dmac handler.
+  CRITICAL_SECTION_ENTER();
+    // Get ID of lowest channel with pending interrupt
+    channel = DMAC->INTPEND.bit.ID;
+
+    // Select the channel and make copy of the flags for processing.
+    DMAC->CHID.reg = channel;
+    flags = DMAC->CHINTFLAG.reg;
+
+    // Run through the interrupt flags and clear / keep only one flag to
+    //   be processed after leaving critical section.
+    if( flags | DMAC_CHINTFLAG_TERR )
+    {
+      flags = DMAC_CHINTFLAG_TERR;    // keep only one flag to be processed
+      DMAC->CHINTFLAG.bit.TERR = 1;   // clear interrupt flag
+    }
+    else if( flags | DMAC_CHINTFLAG_TCMPL )
+    {
+      flags = DMAC_CHINTFLAG_TCMPL;   // keep only one flag to be processed
+      DMAC->CHINTFLAG.bit.TCMPL = 1;  // clear interrupt flag
+    }
+    else if( flags | DMAC_CHINTFLAG_SUSP )
+    {
+      flags = DMAC_CHINTFLAG_SUSP;    // keep only one flag to be processed
+      DMAC->CHINTFLAG.bit.SUSP = 1;   // clear interrupt flag
+    }
+  CRITICAL_SECTION_LEAVE();
+
+  if( flags | DMAC_CHINTFLAG_TERR )
+  {
+    if( _interrupt_callbacks[channel].error_callback != NULL )
+    {
+      _interrupt_callbacks[channel].error_callback( channel );
+    }
+  }
+  else if( flags | DMAC_CHINTFLAG_TCMPL )
+  {
+    if( _interrupt_callbacks[channel].transfer_done_callback != NULL )
+    {
+      _interrupt_callbacks[channel].transfer_done_callback( channel );
+    }
+  }
+  else if( flags | DMAC_CHINTFLAG_SUSP )
+  {
+    if( _interrupt_callbacks[channel].suspend_callback != NULL )
+    {
+      _interrupt_callbacks[channel].suspend_callback( channel );
+    }
+  }
 }
