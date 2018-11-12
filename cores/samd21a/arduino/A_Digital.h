@@ -3,7 +3,7 @@
 
 #include "arduino/A_Types.h"
 
-#include "core/digital.h"
+#include "eclay/digital.h"
 
 
 static inline void pinMode( core_digital_pin_t pin, PinMode mode );

@@ -23,7 +23,7 @@
 #include "arduino/A_Delay.h"
 #include "arduino/A_Time.h"
 
-#include "core/reset.h" // Needed for auto-reset with 1200bps port touch
+#include "eclay/reset.h" // Needed for auto-reset with 1200bps port touch
 
 #include "processor/sam.h"
 

@@ -1,4 +1,4 @@
-#include "core/digital.h"
+#include "eclay/digital.h"
 
 #include "processor/port.h"
 

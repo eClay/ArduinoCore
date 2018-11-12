@@ -21,6 +21,12 @@
   }
 
 
+void PROCESSOR_PORT_Initialize( void )
+{
+
+}
+
+
 void PROCESSOR_PORT_DirectionSet_noinline(
     processor_port_group_t      port,
     processor_port_pin_t        pin,

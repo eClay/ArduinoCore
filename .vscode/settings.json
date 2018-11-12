@@ -15,7 +15,8 @@
       "core_reset.h": "c",
       "port.h": "c",
       "stdbool.h": "c",
-      "samd21.h": "c"
+      "samd21.h": "c",
+      "atomic.h": "c"
     },
     "editor.tabSize": 2
   }

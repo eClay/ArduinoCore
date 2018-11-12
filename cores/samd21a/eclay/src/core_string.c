@@ -1,4 +1,4 @@
-#include "core/string.h"
+#include "eclay/string.h"
 
 #include <stdio.h>
 

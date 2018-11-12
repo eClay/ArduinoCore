@@ -1,7 +1,7 @@
 #ifndef ARDUINO_INTERRUPTS_H
 #define ARDUINO_INTERRUPTS_H
 
-#include "core/interrupt.h"
+#include "eclay/interrupt.h"
 #include "A_Types.h"
 
 #define interrupts()   CORE_INTERRUPT_global_disable()

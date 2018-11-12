@@ -16,7 +16,7 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#include "core/time.h"
+#include "eclay/time.h"
 #include "variant.h"
 
 #include "processor/sam.h"

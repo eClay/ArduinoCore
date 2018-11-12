@@ -1,6 +1,6 @@
-#include "core/time.h"
+#include "eclay/time.h"
 
-#include "core/reset.h"
+#include "eclay/reset.h"
 
 #include "processor/sam.h"
 

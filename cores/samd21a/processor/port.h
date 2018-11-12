@@ -13,6 +13,9 @@
 extern "C" {
 #endif
 
+// Values of processor_port_group_t must match PORT group values so that
+// they can be used directly in accessing PORT registers.
+// e.g. Port pins PAxx are accessed through PORT->Group[0]
 typedef enum
 {
   PROCESSOR_PORT_GROUP_PA = 0,
@@ -63,6 +66,9 @@ typedef enum
   PROCESSOR_PORT_PINMUX_DISABLED = NUM_PROCESSOR_PORT_PINMUX,
   PROCESSOR_PORT_PINMUX_INVALID
 } processor_port_pinmux_t;
+
+
+void PROCESSOR_PORT_Initialize( void );
 
 
 static inline void PROCESSOR_PORT_DirectionSet(

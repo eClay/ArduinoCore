@@ -4,10 +4,9 @@
             "name": "SAMD21",
             "includePath": [
                 "${workspaceRoot}/cores/samd21a",
-                "${workspaceRoot}/cores/samd21a/core/samd21a",
                 "${workspaceRoot}/variants/minion_d21",
-                "/Users/greg/Library/Arduino15/packages/eclay/tools/⁨CMSIS⁩/5.4.0/CMSIS⁩/⁨Core⁩/Include",
-                "/Users/greg/Library/Arduino15/packages/eclay/tools/gcc-arm-none-eabi/7-2018q2/arm-none-eabi/include"
+                "~/Library/Arduino15/packages/eclay/tools/⁨CMSIS⁩/5.4.0/CMSIS⁩/⁨Core⁩/Include",
+                "~/Library/Arduino15/packages/eclay/tools/gcc-arm-none-eabi/7-2018q2/arm-none-eabi/include"
             ],
             "defines": [
                 "__SAMD21G18A__",
