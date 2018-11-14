@@ -21,10 +21,10 @@ typedef enum {
 } processor_tcc_instance_t;
 
 typedef enum {
-  PROCESSOR_TCC_CHANNEL_TCC_MC0 = 0,
-  PROCESSOR_TCC_CHANNEL_TCC_MC1 = 1,
-  PROCESSOR_TCC_CHANNEL_TCC_MC2 = 2,
-  PROCESSOR_TCC_CHANNEL_TCC_MC3 = 3,
+  PROCESSOR_TCC_CHANNEL_MC0 = 0,
+  PROCESSOR_TCC_CHANNEL_MC1 = 1,
+  PROCESSOR_TCC_CHANNEL_MC2 = 2,
+  PROCESSOR_TCC_CHANNEL_MC3 = 3,
 } processor_tcc_channel_t;
 
 typedef enum {

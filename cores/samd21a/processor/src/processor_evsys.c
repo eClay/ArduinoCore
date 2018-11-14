@@ -8,38 +8,32 @@
 #include <stdint.h>
 
 
-typedef struct
-{
-  processor_event_system_detect_callback_t   detect_callback;
-  processor_event_system_overrun_callback_t  overrun_callback;
-} processor_event_system_callbacks_t;
-
-static processor_event_system_callbacks_t _interrupt_callbacks[PROCESSOR_EVENT_SYSTEM_NUM_CHANNELS];
+static processor_evsys_interrupt_callback_t _interrupt_callback[PROCESSOR_EVSYS_NUM_CHANNELS];
 
 
-void PROCESSOR_EVENT_SYSTEM_Initialize( void )
+void PROCESSOR_EVSYS_Initialize( void )
 {
   EVSYS->CTRL.bit.SWRST = 1;
   while( EVSYS->CTRL.bit.SWRST );
 }
 
 
-void PROCESSOR_EVENT_SYSTEM_User_Set(
-    processor_event_system_user_t user,
-    processor_event_system_user_channel_t channel
+void PROCESSOR_EVSYS_User_Set(
+    processor_evsys_user_t user,
+    processor_evsys_user_channel_t channel
   )
 {
   EVSYS->USER.reg = EVSYS_USER_CHANNEL(channel) | EVSYS_USER_USER(user);
 }
 
-void PROCESSOR_EVENT_SYSTEM_Generator_Set(
-    processor_event_system_generator_t generator,
-    processor_event_system_channel_t channel,
-    processor_event_system_edge_t edge,
-    processor_event_system_path_t path
+void PROCESSOR_EVSYS_Generator_Set(
+    processor_evsys_generator_t generator,
+    processor_evsys_channel_t channel,
+    processor_evsys_edge_t edge,
+    processor_evsys_path_t path
   )
 {
-  if (channel >= PROCESSOR_EVENT_SYSTEM_NUM_CHANNELS)   return;
+  if (channel >= PROCESSOR_EVSYS_NUM_CHANNELS)   return;
 
   EVSYS->CHANNEL.reg = EVSYS_CHANNEL_CHANNEL(channel) | 
                        EVSYS_CHANNEL_EVGEN(generator) |
@@ -47,22 +41,22 @@ void PROCESSOR_EVENT_SYSTEM_Generator_Set(
                        EVSYS_CHANNEL_PATH(path);
 }
 
-void PROCESSOR_EVENT_SYSTEM_SoftwareTrigger(
-    processor_event_system_channel_t channel
+void PROCESSOR_EVSYS_SoftwareTrigger(
+    processor_evsys_channel_t channel
   )
 {
-  if( channel >= PROCESSOR_EVENT_SYSTEM_NUM_CHANNELS )  return;
+  if( channel >= PROCESSOR_EVSYS_NUM_CHANNELS )  return;
 
   // Need to use 16-bit write to assert Software Trigger
   *(__IO uint16_t*)&EVSYS->CHANNEL.reg = (uint16_t)(EVSYS_CHANNEL_CHANNEL(channel) |
                                                     EVSYS_CHANNEL_SWEVT );
 }
 
-bool PROCESSOR_EVENT_SYSTEM_isChannelBusy(
-    processor_event_system_channel_t channel
+bool PROCESSOR_EVSYS_isChannelBusy(
+    processor_evsys_channel_t channel
   )
 {
-  if( channel >= PROCESSOR_EVENT_SYSTEM_NUM_CHANNELS )  return false;
+  if( channel >= PROCESSOR_EVSYS_NUM_CHANNELS )  return false;
 
   if( channel < 8 )
   {
@@ -74,11 +68,11 @@ bool PROCESSOR_EVENT_SYSTEM_isChannelBusy(
   }
 }
 
-bool PROCESSOR_EVENT_SYSTEM_isChannelUserReady(
-    processor_event_system_channel_t channel
+bool PROCESSOR_EVSYS_isChannelUserReady(
+    processor_evsys_channel_t channel
   )
 {
-  if( channel >= PROCESSOR_EVENT_SYSTEM_NUM_CHANNELS )  return false;
+  if( channel >= PROCESSOR_EVSYS_NUM_CHANNELS )  return false;
 
   if( channel < 8 )
   {
@@ -90,149 +84,158 @@ bool PROCESSOR_EVENT_SYSTEM_isChannelUserReady(
   }
 }
 
-void PROCESSOR_EVENT_SYSTEM_EventDetectCallback_Set(
-    processor_event_system_channel_t channel,
-    processor_event_system_detect_callback_t callback
+
+void PROCESSOR_EVSYS_InterruptCallback_Set(
+    processor_evsys_channel_t channel,
+    processor_evsys_interrupt_callback_t callback
   )
 {
-  if( channel >= PROCESSOR_EVENT_SYSTEM_NUM_CHANNELS )  return;
+  if( channel >= PROCESSOR_EVSYS_NUM_CHANNELS )  return;
 
-  _interrupt_callbacks[channel].detect_callback = callback;
+  _interrupt_callback[channel] = callback;
 }
 
-void PROCESSOR_EVENT_SYSTEM_OverrunCallback_Set(
-    processor_event_system_channel_t channel,
-    processor_event_system_overrun_callback_t callback
+void PROCESSOR_EVSYS_Interrupt_Enable(
+    processor_evsys_channel_t channel,
+    processor_evsys_interrupt_t interrupt
   )
 {
-  if( channel >= PROCESSOR_EVENT_SYSTEM_NUM_CHANNELS )  return;
+  if( channel >= PROCESSOR_EVSYS_NUM_CHANNELS )  return;
 
-  _interrupt_callbacks[channel].overrun_callback = callback;
-}
-
-void PROCESSOR_EVENT_SYSTEM_EventDetectInterruptEnable_Set(
-    processor_event_system_channel_t channel,
-    bool enable
-  )
-{
-  if( channel >= PROCESSOR_EVENT_SYSTEM_NUM_CHANNELS )  return;
-
-  if( channel < 8 )
+  switch( interrupt )
   {
-    if( enable )
-    {
-      EVSYS->INTENSET.reg = EVSYS_INTENSET_EVD0 << channel;
-    }
-    else
-    {
-      EVSYS->INTENCLR.reg = EVSYS_INTENCLR_EVD0 << channel;
-    }
-  }
-  else
-  {
-    if( enable )
-    {
-      EVSYS->INTENSET.reg = EVSYS_INTENSET_EVD8 << (channel-8);
-    }
-    else
-    {
-      EVSYS->INTENCLR.reg = EVSYS_INTENCLR_EVD8 << (channel-8);
-    }
+    case PROCESSOR_EVSYS_INTERRUPT_DETECT:
+      if( channel < 8 )
+      {
+        EVSYS->INTENSET.reg = EVSYS_INTENSET_EVD0 << channel;
+      }
+      else
+      {
+        EVSYS->INTENSET.reg = EVSYS_INTENSET_EVD8 << (channel-8);
+      }
+      break;
+
+    case PROCESSOR_EVSYS_INTERRUPT_OVERRUN:
+      if( channel < 8 )
+      {
+        EVSYS->INTENSET.reg = EVSYS_INTENSET_OVR0 << channel;
+      }
+      else
+      {
+        EVSYS->INTENSET.reg = EVSYS_INTENSET_OVR8 << (channel-8);
+      }
+      break;
+
+    default:
+      break;
   }
 }
 
-void PROCESSOR_EVENT_SYSTEM_OverrunInterruptEnable_Set(
-    processor_event_system_channel_t channel,
-    bool enable
+
+void PROCESSOR_EVSYS_Interrupt_Disable(
+    processor_evsys_channel_t channel,
+    processor_evsys_interrupt_t interrupt
   )
 {
-  if( channel >= PROCESSOR_EVENT_SYSTEM_NUM_CHANNELS )  return;
+  if( channel >= PROCESSOR_EVSYS_NUM_CHANNELS )  return;
 
-  if( channel < 8 )
+  switch( interrupt )
   {
-    if( enable )
-    {
-      EVSYS->INTENSET.reg = EVSYS_INTENSET_OVR0 << channel;
-    }
-    else
-    {
-      EVSYS->INTENCLR.reg = EVSYS_INTENCLR_OVR0 << channel;
-    }
-  }
-  else
-  {
-    if( enable )
-    {
-      EVSYS->INTENSET.reg = EVSYS_INTENSET_OVR8 << (channel-8);
-    }
-    else
-    {
-      EVSYS->INTENCLR.reg = EVSYS_INTENCLR_OVR8 << (channel-8);
-    }
+    case PROCESSOR_EVSYS_INTERRUPT_DETECT:
+      if( channel < 8 )
+      {
+        EVSYS->INTENCLR.reg = EVSYS_INTENCLR_EVD0 << channel;
+      }
+      else
+      {
+        EVSYS->INTENCLR.reg = EVSYS_INTENCLR_EVD8 << (channel-8);
+      }
+      break;
+
+    case PROCESSOR_EVSYS_INTERRUPT_OVERRUN:
+      if( channel < 8 )
+      {
+        EVSYS->INTENCLR.reg = EVSYS_INTENCLR_OVR0 << channel;
+      }
+      else
+      {
+        EVSYS->INTENCLR.reg = EVSYS_INTENCLR_OVR8 << (channel-8);
+      }
+      break;
+
+    default:
+      break;
   }
 }
 
-bool PROCESSOR_EVENT_SYSTEM_EventDetectInterruptFlag_Get(
-    processor_event_system_channel_t channel
+bool PROCESSOR_EVSYS_InterruptFlag_Get(
+    processor_evsys_channel_t channel,
+    processor_evsys_interrupt_t interrupt
   )
 {
-  if( channel >= PROCESSOR_EVENT_SYSTEM_NUM_CHANNELS )  return false;
-  
-  if( channel < 8 )
+  if( channel >= PROCESSOR_EVSYS_NUM_CHANNELS )  return false;
+
+  switch( interrupt )
   {
-    return (EVSYS->INTFLAG.reg | (EVSYS_INTFLAG_EVD0 << channel)) != 0;
-  }
-  else
-  {
-    return (EVSYS->INTFLAG.reg | (EVSYS_INTFLAG_EVD8 << (channel-8))) != 0;
+    case PROCESSOR_EVSYS_INTERRUPT_DETECT:
+      if( channel < 8 )
+      {
+        return (EVSYS->INTFLAG.reg | (EVSYS_INTFLAG_EVD0 << channel)) != 0;
+      }
+      else
+      {
+        return (EVSYS->INTFLAG.reg | (EVSYS_INTFLAG_EVD8 << (channel-8))) != 0;
+      }
+    
+    case PROCESSOR_EVSYS_INTERRUPT_OVERRUN:
+      if( channel < 8 )
+      {
+        return (EVSYS->INTFLAG.reg | (EVSYS_INTFLAG_OVR0 << channel)) != 0;
+      }
+      else
+      {
+        return (EVSYS->INTFLAG.reg | (EVSYS_INTFLAG_OVR8 << (channel-8))) != 0;
+      }
+
+    default:
+      return false;
   }
 }
 
-bool PROCESSOR_EVENT_SYSTEM_OverrunInterruptFlag_Get(
-    processor_event_system_channel_t channel
+void PROCESSOR_EVSYS_InterruptFlag_Clear(
+    processor_evsys_channel_t channel,
+    processor_evsys_interrupt_t interrupt
   )
 {
-  if( channel >= PROCESSOR_EVENT_SYSTEM_NUM_CHANNELS )  return false;
+  uint8_t channel_shift = (uint8_t)channel;
 
-  if( channel < 8 )
-  {
-    return (EVSYS->INTFLAG.reg | (EVSYS_INTFLAG_OVR0 << channel)) != 0;
-  }
-  else
-  {
-    return (EVSYS->INTFLAG.reg | (EVSYS_INTFLAG_OVR8 << (channel-8))) != 0;
-  }
-}
+  if( channel >= PROCESSOR_EVSYS_NUM_CHANNELS )  return;
 
-void PROCESSOR_EVENT_SYSTEM_EventDetectInterruptFlag_Clear(
-    processor_event_system_channel_t channel
-  )
-{
-  if( channel >= PROCESSOR_EVENT_SYSTEM_NUM_CHANNELS )  return;
+  switch( interrupt )
+  {
+    case PROCESSOR_EVSYS_INTERRUPT_DETECT:
+      if( channel < 8 )
+      {
+        EVSYS->INTFLAG.reg = EVSYS_INTFLAG_EVD0 << channel;
+      }
+      else
+      {
+        EVSYS->INTFLAG.reg = EVSYS_INTFLAG_EVD8 << (channel-8);
+      }
+      break;
 
-  if( channel < 8 )
-  {
-    EVSYS->INTFLAG.reg = EVSYS_INTFLAG_EVD0 << channel;
-  }
-  else
-  {
-    EVSYS->INTFLAG.reg = EVSYS_INTFLAG_EVD8 << (channel-8);
-  }
-}
+    case PROCESSOR_EVSYS_INTERRUPT_OVERRUN:
+      if( channel < 8 )
+      {
+        EVSYS->INTFLAG.reg = EVSYS_INTFLAG_OVR0 << channel;
+      }
+      else
+      {
+        EVSYS->INTFLAG.reg = EVSYS_INTFLAG_OVR8 << (channel-8);
+      }
+      break;
 
-void PROCESSOR_EVENT_SYSTEM_OverrunInterruptFlag_Clear(
-    processor_event_system_channel_t channel
-  )
-{
-  if( channel >= PROCESSOR_EVENT_SYSTEM_NUM_CHANNELS )  return;
-
-  if( channel < 8 )
-  {
-    EVSYS->INTFLAG.reg = EVSYS_INTFLAG_OVR0 << channel;
-  }
-  else
-  {
-    EVSYS->INTFLAG.reg = EVSYS_INTFLAG_OVR8 << (channel-8);
+    default:
+      break;
   }
 }
-

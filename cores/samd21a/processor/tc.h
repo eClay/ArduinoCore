@@ -12,18 +12,51 @@
 extern "C" {
 #endif
 
+static const Tc* processor_tc_instance[TC_INST_NUM] = TC_INSTS;
+
 typedef enum {
   PROCESSOR_TC_INSTANCE_TC3 = 0,
   PROCESSOR_TC_INSTANCE_TC4,
   PROCESSOR_TC_INSTANCE_TC5,
+#if (TC_INST_NUM == 5)
+  PROCESSOR_TC_INSTANCE_TC6,
+  PROCESSOR_TC_INSTANCE_TC7,
+#endif
   NUM_PROCESSOR_TC_INSTANCES,
   NOT_A_PROCESSOR_TC_INSTANCE = NUM_PROCESSOR_TC_INSTANCES
 } processor_tc_instance_t;
 
 typedef enum {
-  PROCESSOR_TC_CHANNEL_TC_MC0 = 0,
-  PROCESSOR_TC_CHANNEL_TC_MC1 = 1,
+  PROCESSOR_TC_MODE_8BIT  = 0x1,
+  PROCESSOR_TC_MODE_16BIT = 0x0,
+  PROCESSOR_TC_MODE_32BIT = 0x2,
+} processor_tc_mode_t;
+
+typedef enum {
+  PROCESSOR_TC_CHANNEL_MC0 = 0,
+  PROCESSOR_TC_CHANNEL_MC1 = 1,
 } processor_tc_channel_t;
+
+typedef enum {
+  PROCESSOR_TC_OUTPUT_WO0 = 0,
+  PROCESSOR_TC_OUTPUT_WO1 = 1,
+} processor_tc_output_t;
+
+typedef enum {
+  PROCESSOR_TC_OUTPUT_PIN_WO0,
+  PROCESSOR_TC_OUTPUT_PIN_WO1 = 1,
+} processor_tc_4_output_PIN_t;
+
+typedef enum {
+  PROCESSOR_TC_PRESCALE_DIV1    = 0x0,
+  PROCESSOR_TC_PRESCALE_DIV2    = 0x1,
+  PROCESSOR_TC_PRESCALE_DIV4    = 0x2,
+  PROCESSOR_TC_PRESCALE_DIV8    = 0x3,
+  PROCESSOR_TC_PRESCALE_DIV16   = 0x4,
+  PROCESSOR_TC_PRESCALE_DIV64   = 0x5,
+  PROCESSOR_TC_PRESCALE_DIV256  = 0x6,
+  PROCESSOR_TC_PRESCALE_DIV1024 = 0x7,
+} processor_tc_prescale_t;
 
 typedef enum {
   PROCESSOR_TC_WAVEFORM_NORMAL_FREQUENCY = 0x0,
@@ -31,6 +64,11 @@ typedef enum {
   PROCESSOR_TC_WAVEFORM_NORMAL_PWM       = 0x2,
   PROCESSOR_TC_WAVEFORM_MATCH_PWM        = 0x3,
 } processor_tc_waveform_t;
+
+typedef enum {
+  PROCESSOR_TC_DIRECTION_UP   = 0x0,
+  PROCESSOR_TC_DIRECTION_DOWN = 0x1,
+} processor_tc_direction_t;
 
 typedef enum {
   PROCESSOR_TC_INTERRUPT_MC0 = 0,
@@ -72,7 +110,7 @@ typedef enum {
 } processor_tc_event_count_mode_t;
 
 
-void PROCESSOR_TC_InitializeAll( void );
+void PROCESSOR_TC_Initialize( void );
 
 
 static inline void PROCESSOR_TC_SoftwareReset(
@@ -89,9 +127,46 @@ static inline void PROCESSOR_TC_Disable(
   );
 
 
+static inline void PROCESSOR_TC_Prescaler_Set(
+    processor_tc_instance_t  timer,
+    processor_tc_prescale_t  prescale
+  );
+
+static inline processor_tc_prescale_t PROCESSOR_TC_Prescaler_Get(
+    processor_tc_instance_t  timer
+  );
+
+static inline uint32_t PROCESSOR_TC_PrescalerDivisorValue_Get(
+    processor_tc_instance_t  timer
+  );
+
+static inline uint32_t PROCESSOR_TC_PrescalerDivisorShift_Get(
+    processor_tc_instance_t  timer
+  );
+
+
 static inline void PROCESSOR_TC_Waveform_Set(
     processor_tc_instance_t  timer,
     processor_tc_waveform_t  waveform
+  );
+
+
+static inline void PROCESSOR_TC_RunInStandby_Enable(
+    processor_tc_instance_t  timer
+  );
+
+static inline void PROCESSOR_TC_RunInStandby_Disable(
+    processor_tc_instance_t  timer
+  );
+
+
+static inline void PROCESSOR_TC_Direction_Set(
+    processor_tc_instance_t  timer,
+    processor_tc_direction_t direction
+  );
+
+static inline processor_tc_direction_t PROCESSOR_TC_Direction_Get(
+    processor_tc_instance_t  timer
   );
 
 
@@ -121,11 +196,45 @@ static inline uint32_t PROCESSOR_TC_Capture_Get(
   );
 
 
+static inline void PROCESSOR_TC_INTERRUPT_Callback_Set(
+    processor_tc_instance_t  timer,
+    processor_tc_interrupt_t interrupt
+  );
+
+static inline void PROCESSOR_TC_INTERRUPT_Enable(
+    processor_tc_instance_t  timer,
+    processor_tc_interrupt_t interrupt
+  );
+
+static inline void PROCESSOR_TC_INTERRUPT_Disable(
+    processor_tc_instance_t  timer,
+    processor_tc_interrupt_t interrupt
+  );
+
+
 static inline void PROCESSOR_TC_CMD_Retrigger(
     processor_tc_instance_t  timer
   );
 
 static inline void PROCESSOR_TC_CMD_Stop(
+    processor_tc_instance_t  timer
+  );
+
+
+static inline void PROCESSOR_TC_Oneshot_Enable(
+    processor_tc_instance_t  timer
+  );
+
+static inline void PROCESSOR_TC_Oneshot_Disable(
+    processor_tc_instance_t  timer
+  );
+
+
+static inline void PROCESSOR_TC_Direction_Set(
+    processor_tc_instance_t  timer
+  );
+
+static inline void PROCESSOR_TC_Direction_Get(
     processor_tc_instance_t  timer
   );
 
@@ -231,6 +340,98 @@ static inline void PROCESSOR_TC_Disable(
   }
 }
 
+
+static inline void PROCESSOR_TC_Prescaler_Set(
+    processor_tc_instance_t  timer,
+    processor_tc_prescale_t  prescale
+  )
+{
+  switch( timer )
+  {
+    case PROCESSOR_TC_INSTANCE_TC3:
+      TC3->COUNT32.CTRLA.bit.PRESCALER = prescale;
+      break;
+    case PROCESSOR_TC_INSTANCE_TC4:
+      TC4->COUNT32.CTRLA.bit.PRESCALER = prescale;
+      break;
+    case PROCESSOR_TC_INSTANCE_TC5:
+      TC5->COUNT32.CTRLA.bit.PRESCALER = prescale;
+      break;
+    default:
+      break;
+  }
+}
+
+static inline processor_tc_prescale_t PROCESSOR_TC_Prescaler_Get(
+    processor_tc_instance_t  timer
+  )
+{
+  switch( timer )
+  {
+    case PROCESSOR_TC_INSTANCE_TC3:
+      return TC3->COUNT32.CTRLA.bit.PRESCALER;
+    case PROCESSOR_TC_INSTANCE_TC4:
+      return TC4->COUNT32.CTRLA.bit.PRESCALER;
+    case PROCESSOR_TC_INSTANCE_TC5:
+      return TC5->COUNT32.CTRLA.bit.PRESCALER;
+    default:
+      return PROCESSOR_TC_PRESCALE_DIV1;
+  }
+}
+
+static inline uint16_t PROCESSOR_TC_PrescalerDivisorValue_Get(
+    processor_tc_instance_t  timer
+  )
+{
+  switch( PROCESSOR_TC_Prescaler_Get(timer) )
+  {
+    case PROCESSOR_TC_PRESCALE_DIV1:
+      return 1;
+    case PROCESSOR_TC_PRESCALE_DIV2:
+      return 2;
+    case PROCESSOR_TC_PRESCALE_DIV4:
+      return 4;
+    case PROCESSOR_TC_PRESCALE_DIV8:
+      return 8;
+    case PROCESSOR_TC_PRESCALE_DIV16:
+      return 16;
+    case PROCESSOR_TC_PRESCALE_DIV64:
+      return 64;
+    case PROCESSOR_TC_PRESCALE_DIV256:
+      return 256;
+    case PROCESSOR_TC_PRESCALE_DIV1024:
+      return 1024;
+    default:
+      return 1;
+  }
+}
+
+static inline uint32_t PROCESSOR_TC_PrescalerDivisorShift_Get(
+    processor_tc_instance_t  timer
+  )
+{
+  switch( PROCESSOR_TC_Prescaler_Get(timer) )
+  {
+    case PROCESSOR_TC_PRESCALE_DIV1:
+      return 0;
+    case PROCESSOR_TC_PRESCALE_DIV2:
+      return 1;
+    case PROCESSOR_TC_PRESCALE_DIV4:
+      return 2;
+    case PROCESSOR_TC_PRESCALE_DIV8:
+      return 3;
+    case PROCESSOR_TC_PRESCALE_DIV16:
+      return 4;
+    case PROCESSOR_TC_PRESCALE_DIV64:
+      return 6;
+    case PROCESSOR_TC_PRESCALE_DIV256:
+      return 8;
+    case PROCESSOR_TC_PRESCALE_DIV1024:
+      return 10;
+    default:
+      return 0;
+  }
+}
 
 static inline void PROCESSOR_TC_Waveform_Set(
     processor_tc_instance_t  timer,
