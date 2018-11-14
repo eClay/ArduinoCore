@@ -1,5 +1,5 @@
-#ifndef ECLAY_CORE_TIME_H
-#define ECLAY_CORE_TIME_H
+#ifndef ECLAY_TIME_H
+#define ECLAY_TIME_H
 
 #include <stdint.h>
 
@@ -19,4 +19,4 @@ void CORE_TIME_Task( void );
 } // extern "C"
 #endif
 
-#endif  // ECLAY_CORE_TIME_H
+#endif  // ECLAY_TIME_H

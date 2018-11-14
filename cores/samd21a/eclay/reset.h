@@ -1,5 +1,5 @@
-#ifndef ECLAY_CORE_RESET_H
-#define ECLAY_CORE_RESET_H
+#ifndef ECLAY_RESET_H
+#define ECLAY_RESET_H
 
 #include <stdint.h>
 
@@ -16,4 +16,4 @@ void CORE_RESET_Task( void );
 }
 #endif
 
-#endif  // ECLAY_CORE_RESET_H
+#endif  // ECLAY_RESET_H

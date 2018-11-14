@@ -68,9 +68,9 @@ typedef uint32_t processor_atomic_t;
  * \endcode
  */
 #define CRITICAL_SECTION_ENTER()                  \
-	{                                               \
-		volatile processor_atomic_t __atomic;         \
-		PROCESSOR_ATOMIC_enter_critical(&__atomic);
+  {                                               \
+    volatile processor_atomic_t __atomic;         \
+    PROCESSOR_ATOMIC_enter_critical(&__atomic);
 
 /**
  * \brief Helper macro for leaving critical sections
@@ -80,8 +80,8 @@ typedef uint32_t processor_atomic_t;
  * sections. No semicolon is required after the macro.
  */
 #define CRITICAL_SECTION_LEAVE()                  \
-	  PROCESSOR_ATOMIC_leave_critical(&__atomic);   \
-	}
+    PROCESSOR_ATOMIC_leave_critical(&__atomic);   \
+  }
 
 /**
  * \brief Disable interrupts, enter critical section

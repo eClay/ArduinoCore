@@ -45,9 +45,9 @@
  */
 void PROCESSOR_ATOMIC_enter_critical(processor_atomic_t volatile *atomic)
 {
-	*atomic = __get_PRIMASK();
-	__disable_irq();
-	__DMB();
+  *atomic = __get_PRIMASK();
+  __disable_irq();
+  __DMB();
 }
 
 /**
@@ -55,6 +55,6 @@ void PROCESSOR_ATOMIC_enter_critical(processor_atomic_t volatile *atomic)
  */
 void PROCESSOR_ATOMIC_leave_critical(processor_atomic_t volatile *atomic)
 {
-	__DMB();
-	__set_PRIMASK(*atomic);
+  __DMB();
+  __set_PRIMASK(*atomic);
 }

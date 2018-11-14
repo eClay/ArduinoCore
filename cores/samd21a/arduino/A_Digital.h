@@ -6,32 +6,32 @@
 #include "eclay/digital.h"
 
 
-static inline void pinMode( core_digital_pin_t pin, PinMode mode );
-static inline void pinMode( core_digital_pin_t pin, PinMode mode )
+static inline void pinMode( eclay_digital_pin_t pin, PinMode mode );
+static inline void pinMode( eclay_digital_pin_t pin, PinMode mode )
 {
   switch( mode )
   {
     case INPUT:
-      CORE_DIGITAL_DirectionSet( pin, CORE_DIGITAL_DIRECTION_INPUT );
-      CORE_DIGITAL_PullSet( pin, CORE_DIGITAL_PULL_OFF );
+      ECLAY_DIGITAL_DirectionSet( pin, ECLAY_DIGITAL_DIRECTION_INPUT );
+      ECLAY_DIGITAL_PullSet( pin, ECLAY_DIGITAL_PULL_OFF );
       break;
     case OUTPUT:
-      CORE_DIGITAL_DirectionSet( pin, CORE_DIGITAL_DIRECTION_OUTPUT );
+      ECLAY_DIGITAL_DirectionSet( pin, ECLAY_DIGITAL_DIRECTION_OUTPUT );
       break;
     case INPUT_PULLUP:
-      CORE_DIGITAL_DirectionSet( pin, CORE_DIGITAL_DIRECTION_INPUT );
-      CORE_DIGITAL_PullSet( pin, CORE_DIGITAL_PULL_UP );
+      ECLAY_DIGITAL_DirectionSet( pin, ECLAY_DIGITAL_DIRECTION_INPUT );
+      ECLAY_DIGITAL_PullSet( pin, ECLAY_DIGITAL_PULL_UP );
       break;
     case INPUT_PULLDOWN:
-      CORE_DIGITAL_DirectionSet( pin, CORE_DIGITAL_DIRECTION_INPUT );
-      CORE_DIGITAL_PullSet( pin, CORE_DIGITAL_PULL_DOWN );
+      ECLAY_DIGITAL_DirectionSet( pin, ECLAY_DIGITAL_DIRECTION_INPUT );
+      ECLAY_DIGITAL_PullSet( pin, ECLAY_DIGITAL_PULL_DOWN );
       break;
   }
 }
 
-#define digitalWrite(pinNumber, status)  CORE_DIGITAL_OutputSet(pinNumber, status)
+#define digitalWrite(pinNumber, status)  ECLAY_DIGITAL_OutputSet(pinNumber, status)
 
-#define digitalRead(pinNumber)           CORE_DIGITAL_InputGet(pinNumber)
+#define digitalRead(pinNumber)           ECLAY_DIGITAL_InputGet(pinNumber)
 
 
 #endif  // ARDUINO_DIGITAL_H
