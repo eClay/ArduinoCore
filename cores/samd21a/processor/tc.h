@@ -26,6 +26,13 @@ typedef enum {
 } processor_tc_channel_t;
 
 typedef enum {
+  PROCESSOR_TC_WAVEFORM_NORMAL_FREQUENCY = 0x0,
+  PROCESSOR_TC_WAVEFORM_MATCH_FREQUENCY  = 0x1,
+  PROCESSOR_TC_WAVEFORM_NORMAL_PWM       = 0x2,
+  PROCESSOR_TC_WAVEFORM_MATCH_PWM        = 0x3,
+} processor_tc_waveform_t;
+
+typedef enum {
   PROCESSOR_TC_INTERRUPT_MC0 = 0,
   PROCESSOR_TC_INTERRUPT_MC1,
   PROCESSOR_TC_INTERRUPT_SYNC_READY,
@@ -63,13 +70,6 @@ typedef enum {
   PROCESSOR_TC_EVENT_COUNT_MODE_BETWEEN  = 0x2,
   PROCESSOR_TC_EVENT_COUNT_MODE_BOUNDARY = 0x3,
 } processor_tc_event_count_mode_t;
-
-typedef enum {
-  PROCESSOR_TC_TC_WAVEFORM_NORMAL_FREQUENCY = 0x0,
-  PROCESSOR_TC_TC_WAVEFORM_MATCH_FREQUENCY  = 0x1,
-  PROCESSOR_TC_TC_WAVEFORM_NORMAL_PWM       = 0x2,
-  PROCESSOR_TC_TC_WAVEFORM_MATCH_PWM        = 0x3,
-} processor_tc_waveform_t;
 
 
 void PROCESSOR_TC_InitializeAll( void );
@@ -130,22 +130,6 @@ static inline void PROCESSOR_TC_CMD_Stop(
   );
 
 
-static inline void PROCESSOR_TC_EVENT_Output_Enable(
-    processor_tc_instance_t      timer,
-    processor_tc_event_output_t  event
-  );
-
-static inline void PROCESSOR_TC_EVENT_Output_Disable(
-    processor_tc_instance_t      timer,
-    processor_tc_event_output_t  event
-  );
-
-static inline void PROCESSOR_TC_EVENT_CountMode_Set(
-    processor_tc_instance_t          timer,
-    processor_tc_event_count_mode_t  mode
-  );
-
-
 static inline void PROCESSOR_TC_EVENT_Input_Enable(
     processor_tc_instance_t      timer,
     processor_tc_event_input_t   event
@@ -162,7 +146,19 @@ static inline void PROCESSOR_TC_EVENT_InputAction_Set(
   );
 
 
+static inline void PROCESSOR_TC_EVENT_Output_Enable(
+    processor_tc_instance_t      timer,
+    processor_tc_event_output_t  event
+  );
 
+static inline void PROCESSOR_TC_EVENT_Output_Disable(
+    processor_tc_instance_t      timer,
+    processor_tc_event_output_t  event
+  );
+
+
+//********************************************************
+// INLINE FUNCTION DEFINITIONS
 //********************************************************
 
 static inline void PROCESSOR_TC_SoftwareReset(
@@ -453,6 +449,145 @@ static inline void PROCESSOR_TC_CMD_Stop(
       break;
     default:
       break;
+  }
+}
+
+
+static inline __IO uint32_t* PROCESSOR_TC_EVCTRL_Register(
+    processor_tc_instance_t  timer
+  )
+{
+  switch( timer )
+  {
+    case PROCESSOR_TC_INSTANCE_TC3:
+      return (__IO uint32_t*)TC3->COUNT32.EVCTRL.reg;
+    case PROCESSOR_TC_INSTANCE_TC4:
+      return (__IO uint32_t*)TC4->COUNT32.EVCTRL.reg;
+    case PROCESSOR_TC_INSTANCE_TC5:
+      return (__IO uint32_t*)TC5->COUNT32.EVCTRL.reg;
+    default:
+      return NULL;
+  }
+}
+
+
+static inline void PROCESSOR_TC_EVENT_Input_Enable(
+    processor_tc_instance_t      timer,
+    processor_tc_event_input_t   event
+  )
+{
+  __IO uint32_t* evctrl_reg = PROCESSOR_TC_EVCTRL_Register(timer);
+
+  if( evctrl_reg != NULL )
+  {
+    switch( event )
+    {
+      case PROCESSOR_TC_EVENT_INPUT_MC0:
+        *evctrl_reg |= TC_EVCTRL_MCEO0;
+        break;
+      case PROCESSOR_TC_EVENT_INPUT_MC1:
+        *evctrl_reg |= TC_EVCTRL_MCEO1;
+        break;
+      case PROCESSOR_TC_EVENT_INPUT_EV:
+        *evctrl_reg &= ~TC_EVCTRL_TCINV;
+        *evctrl_reg |= TC_EVCTRL_TCEI;
+        break;
+      case PROCESSOR_TC_EVENT_INPUT_EV_INVERTED:
+        *evctrl_reg |= (TC_EVCTRL_TCEI | TC_EVCTRL_TCINV);
+        break;
+      default:
+        break;
+    }
+  }
+}
+
+static inline void PROCESSOR_TC_EVENT_Input_Disable(
+    processor_tc_instance_t      timer,
+    processor_tc_event_input_t   event
+  )
+{
+  __IO uint32_t* evctrl_reg = PROCESSOR_TC_EVCTRL_Register(timer);
+
+  if( evctrl_reg != NULL )
+  {
+    switch( event )
+    {
+      case PROCESSOR_TC_EVENT_INPUT_MC0:
+        *evctrl_reg &= ~TC_EVCTRL_MCEO0;
+        break;
+      case PROCESSOR_TC_EVENT_INPUT_MC1:
+        *evctrl_reg &= ~TC_EVCTRL_MCEO1;
+        break;
+      case PROCESSOR_TC_EVENT_INPUT_EV:
+        *evctrl_reg &= ~TC_EVCTRL_TCEI;
+        break;
+      case PROCESSOR_TC_EVENT_INPUT_EV_INVERTED:
+        *evctrl_reg &= ~TC_EVCTRL_TCEI;
+        break;
+      default:
+        break;
+    }
+  }
+}
+
+static inline void PROCESSOR_TC_EVENT_InputAction_Set(
+    processor_tc_instance_t            timer,
+    processor_tc_event_input_action_t action
+  )
+{
+
+}
+
+
+static inline void PROCESSOR_TC_EVENT_Output_Enable(
+    processor_tc_instance_t      timer,
+    processor_tc_event_output_t  event
+  )
+{
+  __IO uint32_t* evctrl_reg = PROCESSOR_TC_EVCTRL_Register(timer);
+
+  if( evctrl_reg != NULL )
+  {
+    switch( event )
+    {
+      case PROCESSOR_TC_EVENT_OUTPUT_MC0:
+        *evctrl_reg |= TC_EVCTRL_MCEO0;
+        break;
+      case PROCESSOR_TC_EVENT_OUTPUT_MC1:
+        *evctrl_reg |= TC_EVCTRL_MCEO1;
+        break;
+      case PROCESSOR_TC_EVENT_OUTPUT_OVERFLOW:
+        *evctrl_reg |= TC_EVCTRL_OVFEO;
+        break;
+      default:
+        break;
+    }
+  }
+}
+
+static inline void PROCESSOR_TC_EVENT_Output_Disable(
+    processor_tc_instance_t      timer,
+    processor_tc_event_output_t  event
+  )
+{
+  __IO uint32_t* evctrl_reg = PROCESSOR_TC_EVCTRL_Register(timer);
+
+  if( evctrl_reg != NULL )
+  {
+    switch( event )
+    {
+      case PROCESSOR_TC_EVENT_OUTPUT_MC0:
+        *evctrl_reg &= ~TC_EVCTRL_MCEO0;
+        break;
+      case PROCESSOR_TC_EVENT_OUTPUT_MC1:
+        *evctrl_reg &= ~TC_EVCTRL_MCEO1;
+        break;
+      case PROCESSOR_TC_EVENT_OUTPUT_OVERFLOW:
+        *evctrl_reg &= ~TC_EVCTRL_OVFEO;
+        break;
+      default:
+        break;
+    }
   }
 }
 

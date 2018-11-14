@@ -28,6 +28,16 @@ typedef enum {
 } processor_tcc_channel_t;
 
 typedef enum {
+  PROCESSOR_TCC_WAVEFORM_NORMAL_FREQUENCY    = 0x0,
+  PROCESSOR_TCC_WAVEFORM_MATCH_FREQUENCY     = 0x1,
+  PROCESSOR_TCC_WAVEFORM_NORMAL_PWM          = 0x2,
+  PROCESSOR_TCC_WAVEFORM_DUAL_SLOPE_CRITICAL = 0x4,
+  PROCESSOR_TCC_WAVEFORM_DUAL_SLOPE_BOTTOM   = 0x5,
+  PROCESSOR_TCC_WAVEFORM_DUAL_SLOPE_BOTH     = 0x6,
+  PROCESSOR_TCC_WAVEFORM_DUAL_SLOPE_TOP      = 0x7,
+} processor_tcc_waveform_t;
+
+typedef enum {
   PROCESSOR_TCC_INTERRUPT_MC0 = 0,
   PROCESSOR_TCC_INTERRUPT_MC1,
   PROCESSOR_TCC_INTERRUPT_MC2,
@@ -92,16 +102,6 @@ typedef enum {
   PROCESSOR_TCC_EVENT_COUNT_MODE_BETWEEN  = 0x2,
   PROCESSOR_TCC_EVENT_COUNT_MODE_BOUNDARY = 0x3,
 } processor_tcc_event_count_mode_t;
-
-typedef enum {
-  PROCESSOR_TCC_WAVEFORM_NORMAL_FREQUENCY    = 0x0,
-  PROCESSOR_TCC_WAVEFORM_MATCH_FREQUENCY     = 0x1,
-  PROCESSOR_TCC_WAVEFORM_NORMAL_PWM          = 0x2,
-  PROCESSOR_TCC_WAVEFORM_DUAL_SLOPE_CRITICAL = 0x4,
-  PROCESSOR_TCC_WAVEFORM_DUAL_SLOPE_BOTTOM   = 0x5,
-  PROCESSOR_TCC_WAVEFORM_DUAL_SLOPE_BOTH     = 0x6,
-  PROCESSOR_TCC_WAVEFORM_DUAL_SLOPE_TOP      = 0x7,
-} processor_tcc_waveform_t;
 
 
 void PROCESSOR_TCC_InitializeAll( void );
@@ -199,22 +199,6 @@ static inline void PROCESSOR_TCC_CMD_ReadSync(
   );
 
 
-static inline void PROCESSOR_TCC_EVENT_Output_Enable(
-    processor_tcc_instance_t      timer,
-    processor_tcc_event_output_t  event
-  );
-
-static inline void PROCESSOR_TCC_EVENT_Output_Disable(
-    processor_tcc_instance_t      timer,
-    processor_tcc_event_output_t  event
-  );
-
-static inline void PROCESSOR_TCC_EVENT_CountMode_Set(
-    processor_tcc_instance_t          timer,
-    processor_tcc_event_count_mode_t  mode
-  );
-
-
 static inline void PROCESSOR_TCC_EVENT_Input_Enable(
     processor_tcc_instance_t      timer,
     processor_tcc_event_input_t   event
@@ -236,7 +220,24 @@ static inline void PROCESSOR_TCC_EVENT_InputAction1_Set(
   );
 
 
+static inline void PROCESSOR_TCC_EVENT_Output_Enable(
+    processor_tcc_instance_t      timer,
+    processor_tcc_event_output_t  event
+  );
 
+static inline void PROCESSOR_TCC_EVENT_Output_Disable(
+    processor_tcc_instance_t      timer,
+    processor_tcc_event_output_t  event
+  );
+
+static inline void PROCESSOR_TCC_EVENT_CountMode_Set(
+    processor_tcc_instance_t          timer,
+    processor_tcc_event_count_mode_t  mode
+  );
+
+
+//********************************************************
+// INLINE FUNCTION DEFINITIONS
 //********************************************************
 
 static inline void PROCESSOR_TCC_SoftwareReset(
@@ -436,7 +437,6 @@ static inline void PROCESSOR_TCC_Compare_Set(
       break;
   }
 }
-
 
 static inline uint32_t PROCESSOR_TCC_Capture_Get(
     processor_tcc_instance_t  timer,
@@ -706,102 +706,6 @@ static inline __IO uint32_t* PROCESSOR_TCC_EVCTRL_Register(
   }
 }
 
-static inline void PROCESSOR_TCC_EVENT_Output_Enable(
-    processor_tcc_instance_t      timer,
-    processor_tcc_event_output_t  event
-  )
-{
-  __IO uint32_t* evctrl_reg = PROCESSOR_TCC_EVCTRL_Register(timer);
-
-  if( evctrl_reg != NULL )
-  {
-    switch( event )
-    {
-      case PROCESSOR_TCC_EVENT_OUTPUT_MC0:
-        *evctrl_reg |= TCC_EVCTRL_MCEO0;
-        break;
-      case PROCESSOR_TCC_EVENT_OUTPUT_MC1:
-        *evctrl_reg |= TCC_EVCTRL_MCEO1;
-        break;
-      case PROCESSOR_TCC_EVENT_OUTPUT_MC2:
-        *evctrl_reg |= TCC_EVCTRL_MCEO2;
-        break;
-      case PROCESSOR_TCC_EVENT_OUTPUT_MC3:
-        *evctrl_reg |= TCC_EVCTRL_MCEO3;
-        break;
-      case PROCESSOR_TCC_EVENT_OUTPUT_COUNT:
-        *evctrl_reg |= TCC_EVCTRL_CNTEO;
-        break;
-      case PROCESSOR_TCC_EVENT_OUTPUT_RETRIGGER:
-        *evctrl_reg |= TCC_EVCTRL_TRGEO;
-        break;
-      case PROCESSOR_TCC_EVENT_OUTPUT_OVERFLOW:
-        *evctrl_reg |= TCC_EVCTRL_OVFEO;
-        break;
-      default:
-        break;
-    }
-  }
-}
-
-static inline void PROCESSOR_TCC_EVENT_Output_Disable(
-    processor_tcc_instance_t      timer,
-    processor_tcc_event_output_t  event
-  )
-{
-  __IO uint32_t* evctrl_reg = PROCESSOR_TCC_EVCTRL_Register(timer);
-
-  if( evctrl_reg != NULL )
-  {
-    switch( event )
-    {
-      case PROCESSOR_TCC_EVENT_OUTPUT_MC0:
-        *evctrl_reg &= ~TCC_EVCTRL_MCEO0;
-        break;
-      case PROCESSOR_TCC_EVENT_OUTPUT_MC1:
-        *evctrl_reg &= ~TCC_EVCTRL_MCEO1;
-        break;
-      case PROCESSOR_TCC_EVENT_OUTPUT_MC2:
-        *evctrl_reg &= ~TCC_EVCTRL_MCEO2;
-        break;
-      case PROCESSOR_TCC_EVENT_OUTPUT_MC3:
-        *evctrl_reg &= ~TCC_EVCTRL_MCEO3;
-        break;
-      case PROCESSOR_TCC_EVENT_OUTPUT_COUNT:
-        *evctrl_reg &= ~TCC_EVCTRL_CNTEO;
-        break;
-      case PROCESSOR_TCC_EVENT_OUTPUT_RETRIGGER:
-        *evctrl_reg &= ~TCC_EVCTRL_TRGEO;
-        break;
-      case PROCESSOR_TCC_EVENT_OUTPUT_OVERFLOW:
-        *evctrl_reg &= ~TCC_EVCTRL_OVFEO;
-        break;
-      default:
-        break;
-    }
-  }
-}
-
-static inline void PROCESSOR_TCC_EVENT_CountMode_Set(
-    processor_tcc_instance_t          timer,
-    processor_tcc_event_count_mode_t  mode
-  )
-{
-  switch( timer )
-  {
-    case PROCESSOR_TCC_INSTANCE_TCC0:
-      TCC0->EVCTRL.bit.CNTSEL = mode;
-      break;
-    case PROCESSOR_TCC_INSTANCE_TCC1:
-      TCC1->EVCTRL.bit.CNTSEL = mode;
-      break;
-    case PROCESSOR_TCC_INSTANCE_TCC2:
-      TCC2->EVCTRL.bit.CNTSEL = mode;
-      break;
-    default:
-      break;
-  }
-}
 
 static inline void PROCESSOR_TCC_EVENT_Input_Enable(
     processor_tcc_instance_t      timer,
@@ -923,6 +827,104 @@ static inline void PROCESSOR_TCC_EVENT_InputAction1_Set(
       break;
     case PROCESSOR_TCC_INSTANCE_TCC2:
       TCC2->EVCTRL.bit.EVACT1 = action;
+      break;
+    default:
+      break;
+  }
+}
+
+
+static inline void PROCESSOR_TCC_EVENT_Output_Enable(
+    processor_tcc_instance_t      timer,
+    processor_tcc_event_output_t  event
+  )
+{
+  __IO uint32_t* evctrl_reg = PROCESSOR_TCC_EVCTRL_Register(timer);
+
+  if( evctrl_reg != NULL )
+  {
+    switch( event )
+    {
+      case PROCESSOR_TCC_EVENT_OUTPUT_MC0:
+        *evctrl_reg |= TCC_EVCTRL_MCEO0;
+        break;
+      case PROCESSOR_TCC_EVENT_OUTPUT_MC1:
+        *evctrl_reg |= TCC_EVCTRL_MCEO1;
+        break;
+      case PROCESSOR_TCC_EVENT_OUTPUT_MC2:
+        *evctrl_reg |= TCC_EVCTRL_MCEO2;
+        break;
+      case PROCESSOR_TCC_EVENT_OUTPUT_MC3:
+        *evctrl_reg |= TCC_EVCTRL_MCEO3;
+        break;
+      case PROCESSOR_TCC_EVENT_OUTPUT_COUNT:
+        *evctrl_reg |= TCC_EVCTRL_CNTEO;
+        break;
+      case PROCESSOR_TCC_EVENT_OUTPUT_RETRIGGER:
+        *evctrl_reg |= TCC_EVCTRL_TRGEO;
+        break;
+      case PROCESSOR_TCC_EVENT_OUTPUT_OVERFLOW:
+        *evctrl_reg |= TCC_EVCTRL_OVFEO;
+        break;
+      default:
+        break;
+    }
+  }
+}
+
+static inline void PROCESSOR_TCC_EVENT_Output_Disable(
+    processor_tcc_instance_t      timer,
+    processor_tcc_event_output_t  event
+  )
+{
+  __IO uint32_t* evctrl_reg = PROCESSOR_TCC_EVCTRL_Register(timer);
+
+  if( evctrl_reg != NULL )
+  {
+    switch( event )
+    {
+      case PROCESSOR_TCC_EVENT_OUTPUT_MC0:
+        *evctrl_reg &= ~TCC_EVCTRL_MCEO0;
+        break;
+      case PROCESSOR_TCC_EVENT_OUTPUT_MC1:
+        *evctrl_reg &= ~TCC_EVCTRL_MCEO1;
+        break;
+      case PROCESSOR_TCC_EVENT_OUTPUT_MC2:
+        *evctrl_reg &= ~TCC_EVCTRL_MCEO2;
+        break;
+      case PROCESSOR_TCC_EVENT_OUTPUT_MC3:
+        *evctrl_reg &= ~TCC_EVCTRL_MCEO3;
+        break;
+      case PROCESSOR_TCC_EVENT_OUTPUT_COUNT:
+        *evctrl_reg &= ~TCC_EVCTRL_CNTEO;
+        break;
+      case PROCESSOR_TCC_EVENT_OUTPUT_RETRIGGER:
+        *evctrl_reg &= ~TCC_EVCTRL_TRGEO;
+        break;
+      case PROCESSOR_TCC_EVENT_OUTPUT_OVERFLOW:
+        *evctrl_reg &= ~TCC_EVCTRL_OVFEO;
+        break;
+      default:
+        break;
+    }
+  }
+}
+
+static inline void PROCESSOR_TCC_EVENT_CountMode_Set(
+    processor_tcc_instance_t          timer,
+    processor_tcc_event_count_mode_t  mode
+  )
+{
+  switch( timer )
+  {
+    case PROCESSOR_TCC_INSTANCE_TCC0:
+      TCC0->EVCTRL.bit.CNTSEL = mode;
+      break;
+    case PROCESSOR_TCC_INSTANCE_TCC1:
+      TCC1->EVCTRL.bit.CNTSEL = mode;
+      break;
+    case PROCESSOR_TCC_INSTANCE_TCC2:
+      TCC2->EVCTRL.bit.CNTSEL = mode;
       break;
     default:
       break;
