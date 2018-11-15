@@ -75,32 +75,14 @@ static inline void PROCESSOR_PORT_DirectionSet(
     processor_port_group_t      port,
     processor_port_pin_t        pin,
     processor_port_direction_t  direction
-  ) __attribute__((always_inline, unused));
-
-void PROCESSOR_PORT_DirectionSet_noinline(
-    processor_port_group_t      port,
-    processor_port_pin_t        pin,
-    processor_port_direction_t  direction
   );
 
 static inline processor_port_direction_t PROCESSOR_PORT_DirectionGet(
     processor_port_group_t      port,
     processor_port_pin_t        pin
-  ) __attribute__((always_inline, unused));
-
-processor_port_direction_t PROCESSOR_PORT_DirectionGet_noinline(
-    processor_port_group_t      port,
-    processor_port_pin_t        pin
   );
 
-
 static inline void PROCESSOR_PORT_OutputSet(
-    processor_port_group_t      port,
-    processor_port_pin_t        pin,
-    processor_port_pinstate_t   state
-  ) __attribute__((always_inline, unused));
-
-void PROCESSOR_PORT_OutputSet_noinline(
     processor_port_group_t      port,
     processor_port_pin_t        pin,
     processor_port_pinstate_t   state
@@ -109,42 +91,26 @@ void PROCESSOR_PORT_OutputSet_noinline(
 static inline void PROCESSOR_PORT_OutputToggle(
     processor_port_group_t      port,
     processor_port_pin_t        pin
-  ) __attribute__((always_inline, unused));
-
-void PROCESSOR_PORT_OutputToggle_noinline(
-    processor_port_group_t      port,
-    processor_port_pin_t        pin
   );
 
 static inline processor_port_pinstate_t PROCESSOR_PORT_OutputGet(
     processor_port_group_t      port,
     processor_port_pin_t        pin
-  ) __attribute__((always_inline, unused));
-
-processor_port_pinstate_t PROCESSOR_PORT_OutputGet_noinline(
-    processor_port_group_t      port,
-    processor_port_pin_t        pin
   );
-
 
 static inline processor_port_pinstate_t PROCESSOR_PORT_InputGet(
     processor_port_group_t      port,
     processor_port_pin_t        pin
-  ) __attribute__((always_inline, unused));
-
-processor_port_pinstate_t PROCESSOR_PORT_InputGet_noinline(
-    processor_port_group_t      port,
-    processor_port_pin_t        pin
   );
 
 
-void PROCESSOR_PORT_InputEnableSet(
+static inline void PROCESSOR_PORT_InputEnableSet(
     processor_port_group_t      port,
     processor_port_pin_t        pin,
-    bool                              enable
+    bool                        enable
   );
 
-bool PROCESSOR_PORT_InputEnableGet(
+static inline bool PROCESSOR_PORT_InputEnableGet(
     processor_port_group_t      port,
     processor_port_pin_t        pin
   );
@@ -186,50 +152,14 @@ processor_port_pinmux_t PROCESSOR_PORT_PinMuxGet(
   );
 
 
-#define CASE_PIN_WRITE_REG_PINMASK(register, pin)               \
-    case pin: register = (_UL_(1) <<  pin);  break;
+#define PROCESSOR_PORT_NO_RETURN_VALUE
 
-#define SWITCH_PIN_WRITE_REG_PINMASK(register, pin)             \
-    switch( pin )                                               \
-    {                                                           \
-      REPEAT_MACRO(CASE_PIN_WRITE_REG_PINMASK, register, NUM_PROCESSOR_PORT_PINS) \
-      default:  break;                                          \
-    }
-
-#define SWITCH_PORT_IOBUS_WRITE_REG_PINMASK(port, regname, pin) \
-    switch( port )                                              \
-    {                                                           \
-      case PROCESSOR_PORT_GROUP_PA:                             \
-        SWITCH_PIN_WRITE_REG_PINMASK( PORT_IOBUS->Group[0].regname.reg, pin )    \
-        break;                                                  \
-      case PROCESSOR_PORT_GROUP_PB:                             \
-        SWITCH_PIN_WRITE_REG_PINMASK( PORT_IOBUS->Group[1].regname.reg, pin )    \
-        break;                                                  \
-      default:                                                  \
-        break;                                                  \
-    }
-
-
-#define CASE_PIN_READ_REG_PINMASK(register, pin)                \
-    case pin: return (register & (_UL_(1) <<  pin)) != 0;
-
-#define SWITCH_PIN_READ_REG_PINMASK(register, pin)              \
-    switch( pin )                                               \
-    {                                                           \
-      REPEAT_MACRO(CASE_PIN_READ_REG_PINMASK, register, NUM_PROCESSOR_PORT_PINS)  \
-      default:  return false;                                   \
-    }
-
-#define SWITCH_PORT_IOBUS_READ_REG_PINMASK(port, regname, pin)  \
-    switch( port )                                              \
-    {                                                           \
-      case PROCESSOR_PORT_GROUP_PA:                             \
-        SWITCH_PIN_READ_REG_PINMASK( PORT_IOBUS->Group[0].regname.reg, pin )      \
-      case PROCESSOR_PORT_GROUP_PB:                             \
-        SWITCH_PIN_READ_REG_PINMASK( PORT_IOBUS->Group[1].regname.reg, pin )      \
-      default:                                                  \
-        return false;                                           \
-    }
+#define PROCESSOR_PORT_RANGE_CHECK_PARAMETERS(port, pin, rtnval)  \
+  if( (port >= NUM_PROCESSOR_PORT_GROUP) ||                           \
+      (pin  >= NUM_PROCESSOR_PORT_PINS ) )                            \
+  {                                                                   \
+    return rtnval;                                                    \
+  }
 
 
 static inline void PROCESSOR_PORT_DirectionSet(
@@ -238,20 +168,15 @@ static inline void PROCESSOR_PORT_DirectionSet(
     processor_port_direction_t  direction
   )
 {
-  if( __builtin_constant_p(port) && __builtin_constant_p(pin) )
-  {
-    if( direction )
-    { 
-      SWITCH_PORT_IOBUS_WRITE_REG_PINMASK( port, DIRSET, pin )
-    }
-    else
-    {
-      SWITCH_PORT_IOBUS_WRITE_REG_PINMASK( port, DIRCLR, pin )
-    }
+  PROCESSOR_PORT_RANGE_CHECK_PARAMETERS(port, pin, PROCESSOR_PORT_NO_RETURN_VALUE);
+
+  if( direction )
+  { 
+    PORT_IOBUS->Group[port].DIRSET.reg = (_UL_(1) <<  pin);
   }
   else
   {
-    PROCESSOR_PORT_DirectionSet_noinline(port, pin, direction);
+    PORT_IOBUS->Group[port].DIRCLR.reg = (_UL_(1) <<  pin);
   }
 }
 
@@ -260,14 +185,9 @@ static inline processor_port_direction_t PROCESSOR_PORT_DirectionGet(
     processor_port_pin_t        pin
   )
 {
-  if( __builtin_constant_p(port) && __builtin_constant_p(pin) )
-  {
-    SWITCH_PORT_IOBUS_READ_REG_PINMASK( port, DIR, pin )
-  }
-  else
-  {
-    return PROCESSOR_PORT_DirectionGet_noinline( port, pin );                       \
-  }
+  PROCESSOR_PORT_RANGE_CHECK_PARAMETERS(port, pin, PROCESSOR_PORT_DIRECTION_INPUT);
+
+  return (PORT_IOBUS->Group[port].DIR.reg | (_UL_(1) <<  pin)) != 0;
 }
 
 
@@ -277,20 +197,15 @@ static inline void PROCESSOR_PORT_OutputSet(
     processor_port_pinstate_t   state
   )
 {
-  if( __builtin_constant_p(port) && __builtin_constant_p(pin) )
-  {
-    if( state )
-    { 
-      SWITCH_PORT_IOBUS_WRITE_REG_PINMASK( port, OUTSET, pin )
-    }
-    else
-    {
-      SWITCH_PORT_IOBUS_WRITE_REG_PINMASK( port, OUTCLR, pin )
-    }
+  PROCESSOR_PORT_RANGE_CHECK_PARAMETERS(port, pin, PROCESSOR_PORT_NO_RETURN_VALUE);
+
+  if( state )
+  { 
+    PORT_IOBUS->Group[port].OUTSET.reg = (_UL_(1) <<  pin);
   }
   else
   {
-    PROCESSOR_PORT_OutputSet_noinline( port, pin, state );
+    PORT_IOBUS->Group[port].OUTCLR.reg = (_UL_(1) <<  pin);
   }
 }
 
@@ -299,14 +214,9 @@ static inline void PROCESSOR_PORT_OutputToggle(
     processor_port_pin_t        pin
   )
 {
-  if( __builtin_constant_p(port) && __builtin_constant_p(pin) )
-  {
-    SWITCH_PORT_IOBUS_WRITE_REG_PINMASK( port, OUTTGL, pin )
-  }
-  else
-  {
-    PROCESSOR_PORT_OutputToggle_noinline( port, pin );
-  }
+  PROCESSOR_PORT_RANGE_CHECK_PARAMETERS(port, pin, PROCESSOR_PORT_NO_RETURN_VALUE);
+
+  PORT_IOBUS->Group[port].OUTTGL.reg = (_UL_(1) <<  pin);
 }
 
 static inline processor_port_pinstate_t PROCESSOR_PORT_OutputGet(
@@ -314,14 +224,9 @@ static inline processor_port_pinstate_t PROCESSOR_PORT_OutputGet(
     processor_port_pin_t        pin
   )
 {
-  if( __builtin_constant_p(port) && __builtin_constant_p(pin) )
-  {
-    SWITCH_PORT_IOBUS_READ_REG_PINMASK( port, OUT, pin )
-  }
-  else
-  {
-    return PROCESSOR_PORT_OutputGet_noinline( port, pin );                       \
-  }
+  PROCESSOR_PORT_RANGE_CHECK_PARAMETERS(port, pin, PROCESSOR_PORT_PINSTATE_LOW);
+
+  return (PORT_IOBUS->Group[port].OUT.reg | (_UL_(1) <<  pin)) != 0;
 }
 
 
@@ -330,15 +235,40 @@ static inline processor_port_pinstate_t PROCESSOR_PORT_InputGet(
     processor_port_pin_t        pin
   )
 {
-  if( __builtin_constant_p(port) && __builtin_constant_p(pin) )
+  PROCESSOR_PORT_RANGE_CHECK_PARAMETERS(port, pin, PROCESSOR_PORT_PINSTATE_LOW);
+
+  return (PORT_IOBUS->Group[port].OUT.reg | (_UL_(1) <<  pin)) != 0;
+}
+
+
+static inline void PROCESSOR_PORT_InputEnableSet(
+    processor_port_group_t      port,
+    processor_port_pin_t        pin,
+    bool                        enable
+  )
+{
+  PROCESSOR_PORT_RANGE_CHECK_PARAMETERS(port, pin, PROCESSOR_PORT_NO_RETURN_VALUE);
+
+  if( enable )
   {
-    SWITCH_PORT_IOBUS_READ_REG_PINMASK( port, IN, pin )
+    PORT->Group[port].PINCFG[pin].reg |= PORT_PINCFG_INEN;
   }
   else
   {
-    return PROCESSOR_PORT_InputGet_noinline(port, pin);
-  }
+    PORT->Group[port].PINCFG[pin].reg &= ~PORT_PINCFG_INEN;
+  }  
 }
+
+static inline bool PROCESSOR_PORT_InputEnableGet(
+    processor_port_group_t      port,
+    processor_port_pin_t        pin
+  )
+{
+  PROCESSOR_PORT_RANGE_CHECK_PARAMETERS( port, pin, false );
+
+  return (PORT->Group[port].PINCFG[pin].reg & PORT_PINCFG_INEN) != 0;
+}
+
 
 
 #ifdef __cplusplus

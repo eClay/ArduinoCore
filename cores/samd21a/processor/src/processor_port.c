@@ -11,137 +11,9 @@
 #endif
 
 
-#define NO_RETURN_VALUE
-
-#define RANGE_CHECK_PORT_PIN_PARAMETERS(port, pin, rtnval)  \
-  if( (port >= NUM_PROCESSOR_PORT_GROUP) ||                 \
-      (pin  >= NUM_PROCESSOR_PORT_PINS ) )                  \
-  {                                                         \
-    return rtnval;                                          \
-  }
-
-
 void PROCESSOR_PORT_Initialize( void )
 {
 
-}
-
-
-void PROCESSOR_PORT_DirectionSet_noinline(
-    processor_port_group_t      port,
-    processor_port_pin_t        pin,
-    processor_port_direction_t  direction
-  )
-{
-  RANGE_CHECK_PORT_PIN_PARAMETERS( port, pin, NO_RETURN_VALUE );
-
-  switch( direction )
-  {
-    case PROCESSOR_PORT_DIRECTION_INPUT:
-      PORT_IOBUS->Group[port].DIRCLR.reg = (_UL_(1) << pin);
-      break;
-
-    case PROCESSOR_PORT_DIRECTION_OUTPUT:
-      PORT_IOBUS->Group[port].DIRSET.reg = (_UL_(1) << pin);
-      break;
-
-    default:
-      break;
-  }
-}
-
-processor_port_direction_t PROCESSOR_PORT_DirectionGet_noinline(
-    processor_port_group_t      port,
-    processor_port_pin_t        pin
-  )
-{
-  RANGE_CHECK_PORT_PIN_PARAMETERS( port, pin, PROCESSOR_PORT_DIRECTION_INPUT );
-
-  return (PORT_IOBUS->Group[port].DIR.reg & (_UL_(1) << pin)) != 0;
-}
-
-
-void PROCESSOR_PORT_OutputSet_noinline(
-    processor_port_group_t      port,
-    processor_port_pin_t        pin,
-    processor_port_pinstate_t   state
-  )
-{
-  RANGE_CHECK_PORT_PIN_PARAMETERS( port, pin, NO_RETURN_VALUE );
-
-  switch( state )
-  {
-    case PROCESSOR_PORT_PINSTATE_LOW:
-      PORT_IOBUS->Group[port].OUTCLR.reg = (_UL_(1) << pin);
-      break;
-
-    case PROCESSOR_PORT_PINSTATE_HIGH:
-      PORT_IOBUS->Group[port].OUTSET.reg = (_UL_(1) << pin);
-      break;
-
-    default:
-      break;
-  }
-}
-
-void PROCESSOR_PORT_OutputToggle_noinline(
-    processor_port_group_t      port,
-    processor_port_pin_t        pin
-  )
-{
-  RANGE_CHECK_PORT_PIN_PARAMETERS( port, pin, NO_RETURN_VALUE );
-
-  PORT_IOBUS->Group[port].OUTTGL.reg = (_UL_(1) << pin);
-}
-
-processor_port_pinstate_t PROCESSOR_PORT_OutputGet_noinline(
-    processor_port_group_t      port,
-    processor_port_pin_t        pin
-  )
-{
-  RANGE_CHECK_PORT_PIN_PARAMETERS( port, pin, PROCESSOR_PORT_PINSTATE_LOW );
-
-  return (PORT_IOBUS->Group[port].OUT.reg & (_UL_(1) << pin)) != 0;
-}
-
-
-processor_port_pinstate_t PROCESSOR_PORT_InputGet_noinline(
-    processor_port_group_t      port,
-    processor_port_pin_t        pin
-  )
-{
-  RANGE_CHECK_PORT_PIN_PARAMETERS( port, pin, PROCESSOR_PORT_PINSTATE_LOW );
-
-  return (PORT_IOBUS->Group[port].IN.reg & (_UL_(1) << pin)) != 0;
-}
-
-
-void PROCESSOR_PORT_InputEnableSet(
-    processor_port_group_t      port,
-    processor_port_pin_t        pin,
-    bool                              enable
-  )
-{
-  RANGE_CHECK_PORT_PIN_PARAMETERS( port, pin, NO_RETURN_VALUE );
-
-  if( enable )
-  {
-    PORT->Group[port].PINCFG[pin].reg |= PORT_PINCFG_INEN;
-  }
-  else
-  {
-    PORT->Group[port].PINCFG[pin].reg &= ~PORT_PINCFG_INEN;
-  }  
-}
-
-bool PROCESSOR_PORT_InputEnableGet(
-    processor_port_group_t      port,
-    processor_port_pin_t        pin
-  )
-{
-  RANGE_CHECK_PORT_PIN_PARAMETERS( port, pin, false );
-
-  return (PORT->Group[port].PINCFG[pin].reg & PORT_PINCFG_INEN) != 0;
 }
 
 
@@ -151,7 +23,7 @@ void PROCESSOR_PORT_PullSet(
     processor_port_pull_t       pull
   )
 {
-  RANGE_CHECK_PORT_PIN_PARAMETERS( port, pin, NO_RETURN_VALUE );
+  PROCESSOR_PORT_RANGE_CHECK_PARAMETERS( port, pin, PROCESSOR_PORT_NO_RETURN_VALUE );
 
   switch( pull )
   {
@@ -189,7 +61,7 @@ processor_port_pull_t PROCESSOR_PORT_PullGet(
     processor_port_pin_t        pin
   )
 {
-  RANGE_CHECK_PORT_PIN_PARAMETERS( port, pin, PROCESSOR_PORT_PULL_INVALID );
+  PROCESSOR_PORT_RANGE_CHECK_PARAMETERS( port, pin, PROCESSOR_PORT_PULL_INVALID );
 
   if( !(PORT->Group[port].PINCFG[pin].reg & PORT_PINCFG_PULLEN) )
   {
@@ -215,7 +87,7 @@ void PROCESSOR_PORT_DriveStrengthSet(
     processor_port_strength_t   strength
   )
 {
-  RANGE_CHECK_PORT_PIN_PARAMETERS( port, pin, NO_RETURN_VALUE );
+  PROCESSOR_PORT_RANGE_CHECK_PARAMETERS( port, pin, PROCESSOR_PORT_NO_RETURN_VALUE );
 
   switch( strength )
   {
@@ -237,7 +109,7 @@ processor_port_strength_t PROCESSOR_PORT_DriveStrengthGet(
     processor_port_pin_t        pin
   )
 {
-  RANGE_CHECK_PORT_PIN_PARAMETERS( port, pin, PROCESSOR_PORT_STRENGTH_INVALID );
+  PROCESSOR_PORT_RANGE_CHECK_PARAMETERS( port, pin, PROCESSOR_PORT_STRENGTH_INVALID );
 
   if( PORT->Group[port].PINCFG[pin].reg & PORT_PINCFG_DRVSTR )
   {
@@ -256,7 +128,7 @@ void PROCESSOR_PORT_PinMuxSet(
     processor_port_pinmux_t     mux
   )
 {
-  RANGE_CHECK_PORT_PIN_PARAMETERS( port, pin, NO_RETURN_VALUE );
+  PROCESSOR_PORT_RANGE_CHECK_PARAMETERS( port, pin, PROCESSOR_PORT_NO_RETURN_VALUE );
 
   bool pinmux_enable = true;
   uint8_t pinmux_bitmask;
@@ -319,7 +191,7 @@ processor_port_pinmux_t PROCESSOR_PORT_PinMuxGet(
     processor_port_pin_t        pin
   )
 {
-  RANGE_CHECK_PORT_PIN_PARAMETERS( port, pin, PROCESSOR_PORT_PINMUX_INVALID );
+  PROCESSOR_PORT_RANGE_CHECK_PARAMETERS( port, pin, PROCESSOR_PORT_PINMUX_INVALID );
   
   if( PORT->Group[port].PINCFG[pin].reg & PORT_PINCFG_PMUXEN )
   {
