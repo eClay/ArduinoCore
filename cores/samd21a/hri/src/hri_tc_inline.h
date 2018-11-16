@@ -30,6 +30,7 @@ static Tc* const hri_tc_instance[TC_INST_NUM] = TC_INSTS;
 #define HRI_TC_WAIT_FOR_SYNC(timer)  \
   while( hri_tc_instance[timer]->COUNT32.STATUS.reg | TC_STATUS_SYNCBUSY )
 
+
 static inline void HRI_TC_SoftwareReset( hri_tc_instance_t timer )
 {
   HRI_TC_RANGE_CHECK_TIMER(timer, HRI_TC_NO_RETURN_VALUE);
@@ -543,3 +544,12 @@ static inline uint32_t HRI_TC_Capture32_Get( hri_tc_instance_t timer, hri_tc_cha
 
   return hri_tc_instance[timer]->COUNT32.CC[channel].reg;
 }
+
+
+#define HRI_TC_INTERRUPT_HANDLER_FLAG(timer,interrupt,flag,callback)  \
+  if( (flags | TC_INTFLAG_##flag) && (enable | TC_INTENSET_##flag) )  \
+  { \
+    hri_tc_instance[timer]->COUNT32.INTFLAG.bit.flag = 1;  \
+    callback( timer, interrupt ); \
+    return; \
+  }

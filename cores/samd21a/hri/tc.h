@@ -17,8 +17,10 @@ typedef enum {
   HRI_TC_INSTANCE_TC3 = 0,
   HRI_TC_INSTANCE_TC4,
   HRI_TC_INSTANCE_TC5,
-#if (TC_INST_NUM == 5)
+#ifdef TC6
   HRI_TC_INSTANCE_TC6,
+#endif
+#ifdef TC7
   HRI_TC_INSTANCE_TC7,
 #endif
   HRI_TC_NUM_INSTANCES,
@@ -46,6 +48,13 @@ typedef enum {
 } hri_tc_mode_t;
 
 typedef enum {
+  HRI_TC_WAVEFORM_NORMAL_FREQUENCY = 0x0,
+  HRI_TC_WAVEFORM_MATCH_FREQUENCY  = 0x1,
+  HRI_TC_WAVEFORM_NORMAL_PWM       = 0x2,
+  HRI_TC_WAVEFORM_MATCH_PWM        = 0x3,
+} hri_tc_waveform_t;
+
+typedef enum {
   HRI_TC_PRESCALE_DIV1    = 0x0,
   HRI_TC_PRESCALE_DIV2    = 0x1,
   HRI_TC_PRESCALE_DIV4    = 0x2,
@@ -57,24 +66,9 @@ typedef enum {
 } hri_tc_prescale_t;
 
 typedef enum {
-  HRI_TC_WAVEFORM_NORMAL_FREQUENCY = 0x0,
-  HRI_TC_WAVEFORM_MATCH_FREQUENCY  = 0x1,
-  HRI_TC_WAVEFORM_NORMAL_PWM       = 0x2,
-  HRI_TC_WAVEFORM_MATCH_PWM        = 0x3,
-} hri_tc_waveform_t;
-
-typedef enum {
   HRI_TC_DIRECTION_UP   = 0x0,
   HRI_TC_DIRECTION_DOWN = 0x1,
 } hri_tc_direction_t;
-
-typedef enum {
-  HRI_TC_INTERRUPT_MC0,
-  HRI_TC_INTERRUPT_MC1,
-  HRI_TC_INTERRUPT_SYNC_READY,
-  HRI_TC_INTERRUPT_ERROR,
-  HRI_TC_INTERRUPT_OVERFLOW,
-} hri_tc_interrupt_t;
 
 typedef enum {
   HRI_TC_EVENT_INPUT,
@@ -96,8 +90,13 @@ typedef enum {
   HRI_TC_EVENT_OUTPUT_OVERFLOW,
 } hri_tc_event_output_t;
 
-
-typedef void (*hri_tc_interrupt_callback_t)( hri_tc_instance_t timer, hri_tc_interrupt_t interrupt );
+typedef enum {
+  HRI_TC_INTERRUPT_MC0,
+  HRI_TC_INTERRUPT_MC1,
+  HRI_TC_INTERRUPT_SYNC_READY,
+  HRI_TC_INTERRUPT_ERROR,
+  HRI_TC_INTERRUPT_OVERFLOW,
+} hri_tc_interrupt_t;
 
 
 void HRI_TC_Initialize( void );
@@ -138,7 +137,6 @@ static inline void HRI_TC_EventInputAction_Set( hri_tc_instance_t timer, hri_tc_
 static inline void HRI_TC_EventOutput_Enable( hri_tc_instance_t timer, hri_tc_event_output_t event );
 static inline void HRI_TC_EventOutput_Disable( hri_tc_instance_t timer, hri_tc_event_output_t event );
 
-void HRI_TC_Interrupt_Callback_Set( hri_tc_instance_t timer, hri_tc_interrupt_callback_t callback );
 static inline void HRI_TC_Interrupt_Enable( hri_tc_instance_t timer, hri_tc_interrupt_t interrupt );
 static inline void HRI_TC_Interrupt_Disable( hri_tc_instance_t timer, hri_tc_interrupt_t interrupt );
 static inline bool HRI_TC_InterruptFlag_Get( hri_tc_instance_t timer, hri_tc_interrupt_t interrupt );
@@ -172,6 +170,58 @@ static inline uint32_t HRI_TC_Capture32_Get( hri_tc_instance_t timer, hri_tc_cha
 #define INCLUDE_HRI_TC_INLINE_H
 #include "src/hri_tc_inline.h"
 #undef INCLUDE_HRI_TC_INLINE_H
+
+
+// The following INTERRUPT_HANDLER macros can be used to assemble a custom
+//   interrupt handler that includes only the desired interrupt flags
+//   in whatever priority order is necessary.
+//
+// The generated interrupt handler will process only a single flag each time it
+//   is executed.  It will exit immediately after handling the highest priority
+//   pending flag. Priority is determined by the order of the indidual flag
+//   handlers macros (highest priority first).
+//
+// For example:
+//   void tc3_callback( hri_tc_instance_t timer, hri_tc_interrupt_t interrupt );
+//
+//   HRI_TC_INTERRUPT_HANDLER_BEGIN(TC3)
+//   HRI_TC_INTERRUPT_HANDLER_OVERFLOW(TC3,tc3_callback)
+//   HRI_TC_INTERRUPT_HANDLER_MC0(TC3,tc3_callback)
+//   HRI_TC_INTERRUPT_HANDLER_MC1(TC3,tc3_callback)
+//   HRI_TC_INTERRUPT_HANDLER_ERROR(TC3,tc3_callback)
+//   HRI_TC_INTERRUPT_HANDLER_SYNC_READY(TC3,tc3_callback)
+//   HRI_TC_INTERRUPT_HANDLER_END()
+//
+// Note that use of a single callback is shown as example, but each flag handler
+//   can have its own unique callback function as needed.
+
+
+typedef void (*hri_tc_interrupt_callback_t)( hri_tc_instance_t timer, hri_tc_interrupt_t interrupt );
+
+
+#define HRI_TC_INTERRUPT_HANDLER_BEGIN(timer) \
+  void timer##_Handler( void ) \
+  { \
+    uint8_t enable = timer->COUNT32.INTENSET.reg; \
+    uint8_t flags = timer->COUNT32.INTFLAG.reg;
+
+#define HRI_TC_INTERRUPT_HANDLER_OVERFLOW(timer,callback) \
+  HRI_TC_INTERRUPT_HANDLER_FLAG(HRI_TC_INSTANCE_##timer, HRI_TC_INTERRUPT_OVERFLOW, OVF, callback);
+
+#define HRI_TC_INTERRUPT_HANDLER_MC0(timer,callback) \
+  HRI_TC_INTERRUPT_HANDLER_FLAG(HRI_TC_INSTANCE_##timer, HRI_TC_INTERRUPT_MC0, MC0, callback);
+
+#define HRI_TC_INTERRUPT_HANDLER_MC1(timer,callback) \
+  HRI_TC_INTERRUPT_HANDLER_FLAG(HRI_TC_INSTANCE_##timer, HRI_TC_INTERRUPT_MC1, MC1, callback);
+
+#define HRI_TC_INTERRUPT_HANDLER_ERROR(timer,callback) \
+  HRI_TC_INTERRUPT_HANDLER_FLAG(HRI_TC_INSTANCE_##timer, HRI_TC_INTERRUPT_ERROR, ERR, callback);
+
+#define HRI_TC_INTERRUPT_HANDLER_SYNC_READY(timer,callback) \
+  HRI_TC_INTERRUPT_HANDLER_FLAG(HRI_TC_INSTANCE_##timer, HRI_TC_INTERRUPT_SYNC_READY, SYNCRDY, callback);
+
+#define HRI_TC_INTERRUPT_HANDLER_END() \
+  }
 
 
 #ifdef __cplusplus

@@ -12,23 +12,55 @@
 extern "C" {
 #endif
 
+
 typedef enum {
   HRI_TCC_INSTANCE_TCC0 = 0,
   HRI_TCC_INSTANCE_TCC1,
   HRI_TCC_INSTANCE_TCC2,
-#if (TC_INST_NUM == 4)
+#ifdef TCC3
   HRI_TCC_INSTANCE_TCC3,
 #endif
-  NUM_HRI_TCC_INSTANCES,
-  NOT_A_HRI_TCC_INSTANCE = NUM_HRI_TCC_INSTANCES
+  HRI_TCC_NUM_INSTANCES,
+  HRI_TCC_NOT_A_INSTANCE = HRI_TCC_NUM_INSTANCES
 } hri_tcc_instance_t;
 
 typedef enum {
   HRI_TCC_CHANNEL_MC0 = 0,
-  HRI_TCC_CHANNEL_MC1 = 1,
-  HRI_TCC_CHANNEL_MC2 = 2,
-  HRI_TCC_CHANNEL_MC3 = 3,
+  HRI_TCC_CHANNEL_MC1,
+  HRI_TCC_CHANNEL_MC2,
+  HRI_TCC_CHANNEL_MC3,
+  HRI_TCC_NUM_CHANNELS,
+  HRI_TCC_NOT_A_CHANNEL = HRI_TCC_NUM_CHANNELS
 } hri_tcc_channel_t;
+
+typedef enum {
+  HRI_TCC_OUTPUT_WO0 = 0,
+  HRI_TCC_OUTPUT_WO1,
+  HRI_TCC_OUTPUT_WO2,
+  HRI_TCC_OUTPUT_WO3,
+  HRI_TCC_OUTPUT_WO4,
+  HRI_TCC_OUTPUT_WO5,
+  HRI_TCC_OUTPUT_WO6,
+  HRI_TCC_OUTPUT_WO7,
+  HRI_TCC_NUM_OUTPUTS,
+  HRI_TCC_NOT_A_OUTPUT = HRI_TCC_NUM_OUTPUTS
+} hri_tcc_output_t;
+
+typedef enum {
+  HRI_TCC_PRESCALE_DIV1    = 0x0,
+  HRI_TCC_PRESCALE_DIV2    = 0x1,
+  HRI_TCC_PRESCALE_DIV4    = 0x2,
+  HRI_TCC_PRESCALE_DIV8    = 0x3,
+  HRI_TCC_PRESCALE_DIV16   = 0x4,
+  HRI_TCC_PRESCALE_DIV64   = 0x5,
+  HRI_TCC_PRESCALE_DIV256  = 0x6,
+  HRI_TCC_PRESCALE_DIV1024 = 0x7,
+} hri_tcc_prescale_t;
+
+typedef enum {
+  HRI_TCC_DIRECTION_UP   = 0x0,
+  HRI_TCC_DIRECTION_DOWN = 0x1,
+} hri_tcc_direction_t;
 
 typedef enum {
   HRI_TCC_WAVEFORM_NORMAL_FREQUENCY    = 0x0,
@@ -45,12 +77,11 @@ typedef enum {
   HRI_TCC_INTERRUPT_MC1,
   HRI_TCC_INTERRUPT_MC2,
   HRI_TCC_INTERRUPT_MC3,
-  HRI_TCC_INTERRUPT_FAULT0,
-  HRI_TCC_INTERRUPT_FAULT1,
-  HRI_TCC_INTERRUPT_FAULTA,
-  HRI_TCC_INTERRUPT_FAULTB,
+  HRI_TCC_INTERRUPT_FAULT_0,
+  HRI_TCC_INTERRUPT_FAULT_1,
+  HRI_TCC_INTERRUPT_FAULT_A,
+  HRI_TCC_INTERRUPT_FAULT_B,
   HRI_TCC_INTERRUPT_FAULT_DEBUG,
-  HRI_TCC_INTERRUPT_FAULT_UPDATE,
   HRI_TCC_INTERRUPT_ERROR,
   HRI_TCC_INTERRUPT_COUNTER,
   HRI_TCC_INTERRUPT_RETRIGGER,
@@ -76,7 +107,7 @@ typedef enum {
   HRI_TCC_EVENT_INPUT0_ACTION_INCREMENT    = 0x4,
   HRI_TCC_EVENT_INPUT0_ACTION_COUNT_ASYNC  = 0x5,
   HRI_TCC_EVENT_INPUT0_ACTION_FAULT        = 0x7,
-} hri_tcc_event_input0_action_t;
+} hri_tcc_event_input_0_action_t;
 
 typedef enum {
   HRI_TCC_EVENT_INPUT1_ACTION_OFF          = 0x0,
@@ -87,7 +118,7 @@ typedef enum {
   HRI_TCC_EVENT_INPUT1_ACTION_PPW          = 0x5,
   HRI_TCC_EVENT_INPUT1_ACTION_PWP          = 0x6,
   HRI_TCC_EVENT_INPUT1_ACTION_FAULT        = 0x7,
-} hri_tcc_event_input1_action_t;
+} hri_tcc_event_input_1_action_t;
 
 typedef enum {
   HRI_TCC_EVENT_OUTPUT_MC0 = 0,
@@ -107,141 +138,163 @@ typedef enum {
 } hri_tcc_event_count_mode_t;
 
 
-void HRI_TCC_InitializeAll( void );
+typedef void (*hri_tcc_interrupt_callback_t)( hri_tcc_instance_t timer, hri_tcc_interrupt_t interrupt );
 
 
-static inline void HRI_TCC_SoftwareReset(
-    hri_tcc_instance_t  timer
-  );
+void HRI_TCC_Initialize( void );
 
+static inline void HRI_TCC_SoftwareReset( hri_tcc_instance_t timer );
 
-static inline void HRI_TCC_Enable(
-    hri_tcc_instance_t  timer
-  );
+static inline void HRI_TCC_Enable( hri_tcc_instance_t timer );
+static inline void HRI_TCC_Disable( hri_tcc_instance_t timer );
 
-static inline void HRI_TCC_Disable(
-    hri_tcc_instance_t  timer
-  );
+static inline void HRI_TCC_Prescaler_Set( hri_tcc_instance_t timer, hri_tcc_prescale_t prescale );
 
+static inline void HRI_TCC_RunInStandby_Enable( hri_tcc_instance_t timer );
+static inline void HRI_TCC_RunInStandby_Disable( hri_tcc_instance_t timer );
 
-static inline void HRI_TCC_Waveform_Set(
-    hri_tcc_instance_t  timer,
-    hri_tcc_waveform_t  waveform
-  );
+static inline void HRI_TCC_Capture_Enable( hri_tcc_instance_t timer, hri_tcc_channel_t channel );
+static inline void HRI_TCC_Capture_Disable( hri_tcc_instance_t timer, hri_tcc_channel_t channel );
 
+static inline void HRI_TCC_Direction_Set( hri_tcc_instance_t timer, hri_tcc_direction_t direction );
+static inline hri_tcc_direction_t HRI_TCC_Direction_Get( hri_tcc_instance_t timer );
 
-static inline void HRI_TCC_Period_Set(
-    hri_tcc_instance_t  timer,
-    uint32_t                  period
-  );
+static inline void HRI_TCC_Oneshot_Enable( hri_tcc_instance_t timer );
+static inline void HRI_TCC_Oneshot_Disable( hri_tcc_instance_t timer );
 
-static inline void HRI_TCC_Count_Set(
-    hri_tcc_instance_t  timer,
-    uint32_t                  count
-  );
+static inline void HRI_TCC_Command_Retrigger( hri_tcc_instance_t timer );
+static inline void HRI_TCC_Command_Stop( hri_tcc_instance_t timer );
+static inline void HRI_TCC_Command_Update( hri_tcc_instance_t timer );
+static inline void HRI_TCC_Command_ReadSync( hri_tcc_instance_t timer );
 
-static inline uint32_t HRI_TCC_Count_Get(
-    hri_tcc_instance_t  timer
-  );
+static inline void HRI_TCC_OutputInvert_Enable( hri_tcc_instance_t timer, hri_tcc_output_t output );
+static inline void HRI_TCC_OutputInvert_Disable( hri_tcc_instance_t timer, hri_tcc_output_t output );
 
-static inline void HRI_TCC_Compare_Set(
-    hri_tcc_instance_t  timer,
-    hri_tcc_channel_t   channel,
-    uint32_t                  compare
-  );
+static inline void HRI_TCC_EventInput_Enable( hri_tcc_instance_t timer, hri_tcc_event_input_t event );
+static inline void HRI_TCC_EventInput_Disable( hri_tcc_instance_t timer, hri_tcc_event_input_t event );
+static inline void HRI_TCC_EventInput0_Action_Set( hri_tcc_instance_t timer, hri_tcc_event_input_0_action_t action );
+static inline void HRI_TCC_EventInput1_Action_Set( hri_tcc_instance_t timer, hri_tcc_event_input_1_action_t action );
 
-static inline uint32_t HRI_TCC_Capture_Get(
-    hri_tcc_instance_t  timer,
-    hri_tcc_channel_t   channel
-  );
+static inline void HRI_TCC_EventOutput_Enable( hri_tcc_instance_t timer, hri_tcc_event_output_t event );
+static inline void HRI_TCC_EventOutput_Disable( hri_tcc_instance_t timer, hri_tcc_event_output_t event );
+static inline void HRI_TCC_EventCountMode_Set( hri_tcc_instance_t timer, hri_tcc_event_count_mode_t mode );
 
+static inline void HRI_TCC_Interrupt_Enable( hri_tcc_instance_t timer, hri_tcc_interrupt_t interrupt );
+static inline void HRI_TCC_Interrupt_Disable( hri_tcc_instance_t timer, hri_tcc_interrupt_t interrupt );
+static inline bool HRI_TCC_InterruptFlag_Get( hri_tcc_instance_t timer, hri_tcc_interrupt_t interrupt );
+static inline void HRI_TCC_InterruptFlag_Clear( hri_tcc_instance_t timer, hri_tcc_interrupt_t interrupt );
 
-static inline void HRI_TCC_Pattern_Set(
-    hri_tcc_instance_t  timer,
-    uint8_t                   enable,
-    uint8_t                   value
-  );
+static inline bool HRI_TCC_isStopped( hri_tcc_instance_t timer );
+static inline bool HRI_TCC_isRunning( hri_tcc_instance_t timer );
 
-static inline void HRI_TCC_PatternEnable_Set(
-    hri_tcc_instance_t  timer,
-    uint8_t                   enable
-  );
+static inline void HRI_TCC_Count_Set( hri_tcc_instance_t timer, uint32_t count );
+static inline uint32_t HRI_TCC_Count_Get( hri_tcc_instance_t timer );
 
-static inline void HRI_TCC_PatternValue_Set(
-    hri_tcc_instance_t  timer,
-    uint8_t                   value
-  );
+static inline void HRI_TCC_Pattern_Set( hri_tcc_instance_t timer, uint8_t enable, uint8_t value );
+static inline void HRI_TCC_PatternEnable_Set( hri_tcc_instance_t timer, uint8_t enable );
+static inline void HRI_TCC_PatternValue_Set( hri_tcc_instance_t timer, uint8_t value );
 
-static inline __IO uint16_t* HRI_TCC_PatternRegister(
-    hri_tcc_instance_t  timer
-  );
+static inline __IO uint16_t* HRI_TCC_PatternRegister( hri_tcc_instance_t timer );
+static inline __IO uint8_t* HRI_TCC_PatternRegisterEnable( hri_tcc_instance_t timer );
+static inline __IO uint8_t* HRI_TCC_PatternRegisterValue( hri_tcc_instance_t timer );
 
-static inline __IO uint8_t* HRI_TCC_PatternRegisterEnable(
-    hri_tcc_instance_t  timer
-  );
+static inline void HRI_TCC_Waveform_Set( hri_tcc_instance_t timer, hri_tcc_waveform_t waveform );
 
-static inline __IO uint8_t* HRI_TCC_PatternRegisterValue(
-    hri_tcc_instance_t  timer
-  );
+static inline void HRI_TCC_Period_Set( hri_tcc_instance_t timer, uint32_t period );
 
+static inline void HRI_TCC_Compare_Set( hri_tcc_instance_t timer, hri_tcc_channel_t channel,  uint32_t compare );
 
-static inline void HRI_TCC_CMD_Retrigger(
-    hri_tcc_instance_t  timer
-  );
-
-static inline void HRI_TCC_CMD_Stop(
-    hri_tcc_instance_t  timer
-  );
-
-static inline void HRI_TCC_CMD_Update(
-    hri_tcc_instance_t  timer
-  );
-
-static inline void HRI_TCC_CMD_ReadSync(
-    hri_tcc_instance_t  timer
-  );
-
-
-static inline void HRI_TCC_EVENT_Input_Enable(
-    hri_tcc_instance_t      timer,
-    hri_tcc_event_input_t   event
-  );
-
-static inline void HRI_TCC_EVENT_Input_Disable(
-    hri_tcc_instance_t      timer,
-    hri_tcc_event_input_t   event
-  );
-
-static inline void HRI_TCC_EVENT_InputAction0_Set(
-    hri_tcc_instance_t            timer,
-    hri_tcc_event_input0_action_t action
-  );
-
-static inline void HRI_TCC_EVENT_InputAction1_Set(
-    hri_tcc_instance_t            timer,
-    hri_tcc_event_input1_action_t action
-  );
-
-
-static inline void HRI_TCC_EVENT_Output_Enable(
-    hri_tcc_instance_t      timer,
-    hri_tcc_event_output_t  event
-  );
-
-static inline void HRI_TCC_EVENT_Output_Disable(
-    hri_tcc_instance_t      timer,
-    hri_tcc_event_output_t  event
-  );
-
-static inline void HRI_TCC_EVENT_CountMode_Set(
-    hri_tcc_instance_t          timer,
-    hri_tcc_event_count_mode_t  mode
-  );
+static inline uint32_t HRI_TCC_Capture_Get( hri_tcc_instance_t timer, hri_tcc_channel_t channel );
 
 
 #define INCLUDE_HRI_TCC_INLINE_H
 #include "src/hri_tcc_inline.h"
 #undef INCLUDE_HRI_TCC_INLINE_H
+
+
+// The following INTERRUPT_HANDLER macros can be used to assemble a custom
+//   interrupt handler that includes only the desired interrupt flags
+//   in whatever priority order is necessary.
+//
+// The generated interrupt handler will process only a single flag each time it
+//   is executed.  It will exit immediately after handling the highest priority
+//   pending flag. Priority is determined by the order of the indidual flag
+//   handlers macros (highest priority first).
+//
+// For example:
+//   void tcc0_callback( hri_tcc_instance_t timer, hri_tcc_interrupt_t interrupt );
+//
+//   HRI_TCC_INTERRUPT_HANDLER_BEGIN(TCC0)
+//   HRI_TCC_INTERRUPT_HANDLER_OVERFLOW(TCC0,tcc0_callback)
+//   HRI_TCC_INTERRUPT_HANDLER_RETRIGGER(TCC0,tcc0_callback)
+//   HRI_TCC_INTERRUPT_HANDLER_COUNTER(TCC0,tcc0_callback)
+//   HRI_TCC_INTERRUPT_HANDLER_ERROR(TCC0,tcc0_callback)
+//   HRI_TCC_INTERRUPT_HANDLER_FAULT_UPDATE(TCC0,tcc0_callback)
+//   HRI_TCC_INTERRUPT_HANDLER_FAULT_DEBUG(TCC0,tcc0_callback)
+//   HRI_TCC_INTERRUPT_HANDLER_FAULT_A(TCC0,tcc0_callback)
+//   HRI_TCC_INTERRUPT_HANDLER_FAULT_B(TCC0,tcc0_callback)
+//   HRI_TCC_INTERRUPT_HANDLER_FAULT_0(TCC0,tcc0_callback)
+//   HRI_TCC_INTERRUPT_HANDLER_FAULT_1(TCC0,tcc0_callback)
+//   HRI_TCC_INTERRUPT_HANDLER_MC0(TCC0,tcc0_callback)
+//   HRI_TCC_INTERRUPT_HANDLER_MC1(TCC0,tcc0_callback)
+//   HRI_TCC_INTERRUPT_HANDLER_MC2(TCC0,tcc0_callback)
+//   HRI_TCC_INTERRUPT_HANDLER_MC3(TCC0,tcc0_callback)
+//   HRI_TCC_INTERRUPT_HANDLER_END()
+//
+// Note that use of a single callback is shown as example, but each flag handler
+//   can have its own unique callback function as needed.
+
+
+typedef void (*hri_tcc_interrupt_callback_t)( hri_tcc_instance_t timer, hri_tcc_interrupt_t interrupt );
+
+
+#define HRI_TCC_INTERRUPT_HANDLER_BEGIN(timer) \
+  void timer##_Handler( void ) \
+  { \
+    uint32_t enable = timer->INTENSET.reg; \
+    uint32_t flags = timer->INTFLAG.reg;
+
+#define HRI_TCC_INTERRUPT_HANDLER_OVERFLOW(timer,callback) \
+  HRI_TCC_INTERRUPT_HANDLER_FLAG(HRI_TCC_INSTANCE_##timer, HRI_TCC_INTERRUPT_OVERFLOW, OVF, callback)
+
+#define HRI_TCC_INTERRUPT_HANDLER_RETRIGGER(timer,callback) \
+  HRI_TCC_INTERRUPT_HANDLER_FLAG(HRI_TCC_INSTANCE_##timer, HRI_TCC_INTERRUPT_RETRIGGER, TRG, callback)
+
+#define HRI_TCC_INTERRUPT_HANDLER_COUNTER(timer,callback) \
+  HRI_TCC_INTERRUPT_HANDLER_FLAG(HRI_TCC_INSTANCE_##timer, HRI_TCC_INTERRUPT_COUNTER, CNT, callback)
+
+#define HRI_TCC_INTERRUPT_HANDLER_ERROR(timer,callback) \
+  HRI_TCC_INTERRUPT_HANDLER_FLAG(HRI_TCC_INSTANCE_##timer, HRI_TCC_INTERRUPT_ERROR, ERR, callback)
+
+#define HRI_TCC_INTERRUPT_HANDLER_FAULT_DEBUG(timer,callback) \
+  HRI_TCC_INTERRUPT_HANDLER_FLAG(HRI_TCC_INSTANCE_##timer, HRI_TCC_INTERRUPT_FAULT_DEBUG, DFS, callback)
+
+#define HRI_TCC_INTERRUPT_HANDLER_FAULT_A(timer,callback) \
+  HRI_TCC_INTERRUPT_HANDLER_FLAG(HRI_TCC_INSTANCE_##timer, HRI_TCC_INTERRUPT_FAULT_A, FAULTA, callback)
+
+#define HRI_TCC_INTERRUPT_HANDLER_FAULT_B(timer,callback) \
+  HRI_TCC_INTERRUPT_HANDLER_FLAG(HRI_TCC_INSTANCE_##timer, HRI_TCC_INTERRUPT_FAULT_B, FAULTB, callback)
+
+#define HRI_TCC_INTERRUPT_HANDLER_FAULT_0(timer,callback) \
+  HRI_TCC_INTERRUPT_HANDLER_FLAG(HRI_TCC_INSTANCE_##timer, HRI_TCC_INTERRUPT_FAULT_0, FAULT0, callback)
+
+#define HRI_TCC_INTERRUPT_HANDLER_FAULT_1(timer,callback) \
+  HRI_TCC_INTERRUPT_HANDLER_FLAG(HRI_TCC_INSTANCE_##timer, HRI_TCC_INTERRUPT_FAULT_1, FAULT1, callback)
+
+#define HRI_TCC_INTERRUPT_HANDLER_MC0(timer,callback) \
+  HRI_TCC_INTERRUPT_HANDLER_FLAG(HRI_TCC_INSTANCE_##timer, HRI_TCC_INTERRUPT_MC0, MC0, callback)
+
+#define HRI_TCC_INTERRUPT_HANDLER_MC1(timer,callback) \
+  HRI_TCC_INTERRUPT_HANDLER_FLAG(HRI_TCC_INSTANCE_##timer, HRI_TCC_INTERRUPT_MC1, MC1, callback)
+
+#define HRI_TCC_INTERRUPT_HANDLER_MC2(timer,callback) \
+  HRI_TCC_INTERRUPT_HANDLER_FLAG(HRI_TCC_INSTANCE_##timer, HRI_TCC_INTERRUPT_MC2, MC2, callback)
+
+#define HRI_TCC_INTERRUPT_HANDLER_MC3(timer,callback) \
+  HRI_TCC_INTERRUPT_HANDLER_FLAG(HRI_TCC_INSTANCE_##timer, HRI_TCC_INTERRUPT_MC3, MC3, callback)
+
+#define HRI_TCC_INTERRUPT_HANDLER_END() \
+  }
 
 
 #ifdef __cplusplus
