@@ -28,7 +28,7 @@
  */
 
 //#include "samd21.h"
-#include "processor/sam.h"
+#include "hri/sam.h"
 
 /* Initialize segments */
 extern uint32_t _sfixed;

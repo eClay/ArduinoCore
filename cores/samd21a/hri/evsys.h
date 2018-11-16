@@ -1,7 +1,7 @@
 #ifndef ECLAY_PROCESSOR_EVSYS_H
 #define ECLAY_PROCESSOR_EVSYS_H
 
-#include "processor/sam.h"
+#include "hri/sam.h"
 
 #include <stdbool.h>
 #include <stdint.h>

@@ -19,7 +19,7 @@
 #include "eclay/time.h"
 #include "variant.h"
 
-#include "processor/sam.h"
+#include "hri/sam.h"
 
 #include <stdio.h>
 

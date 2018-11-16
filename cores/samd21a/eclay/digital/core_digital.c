@@ -1,8 +1,8 @@
 #include "eclay/digital.h"
 
-#include "processor/port.h"
+#include "hri/port.h"
 
-#include "processor/sam.h"
+#include "hri/sam.h"
 
 #include "utils/utils_repeat_macro.h"
 

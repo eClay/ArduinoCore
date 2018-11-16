@@ -18,7 +18,7 @@
 
 #include "eclay/reset.h"
 
-#include "processor/sam.h"
+#include "hri/sam.h"
 
 #include <stdbool.h>
 

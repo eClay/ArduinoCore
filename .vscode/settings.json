@@ -1,6 +1,6 @@
 {
     "files.associations": {
-      "processor/sam.h": "c",
+      "hri/sam.h": "c",
       "samd21g18a.h": "c",
       "wdigital.h": "c",
       "cstdlib": "cpp",
@@ -16,7 +16,8 @@
       "port.h": "c",
       "stdbool.h": "c",
       "samd21.h": "c",
-      "atomic.h": "c"
+      "atomic.h": "c",
+      "sam.h": "c"
     },
     "editor.tabSize": 2
   }

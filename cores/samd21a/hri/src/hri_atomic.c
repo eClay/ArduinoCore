@@ -38,7 +38,7 @@
 //*************************************************************
 
 
-#include "processor/atomic.h"
+#include "hri/atomic.h"
 
 /**
  * \brief Disable interrupts, enter critical section

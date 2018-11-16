@@ -1,6 +1,6 @@
-#include "processor/port.h"
+#include "hri/port.h"
 
-#include "processor/sam.h"
+#include "hri/sam.h"
 
 #include <stdbool.h>
 #include <stdint.h>

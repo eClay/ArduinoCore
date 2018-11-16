@@ -25,7 +25,7 @@
 
 #include "eclay/reset.h" // Needed for auto-reset with 1200bps port touch
 
-#include "processor/sam.h"
+#include "hri/sam.h"
 
 #include <stdlib.h>
 #include <stdio.h>

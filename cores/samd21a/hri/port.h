@@ -1,7 +1,7 @@
 #ifndef ECLAY_PROCESSOR_PORT_H
 #define ECLAY_PROCESSOR_PORT_H
 
-#include "processor/sam.h"
+#include "hri/sam.h"
 
 #include <stdbool.h>
 #include <stdint.h>
@@ -151,6 +151,10 @@ processor_port_pinmux_t PROCESSOR_PORT_PinMuxGet(
     processor_port_pin_t        pin
   );
 
+
+//********************************************************
+// INLINE FUNCTION DEFINITIONS
+//********************************************************
 
 #define PROCESSOR_PORT_NO_RETURN_VALUE
 

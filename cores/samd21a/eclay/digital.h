@@ -1,7 +1,7 @@
 #ifndef ECLAY_DIGITAL_H
 #define ECLAY_DIGITAL_H
 
-#include "processor/port.h"
+#include "hri/port.h"
 
 #include <stdbool.h>
 #include <stdint.h>

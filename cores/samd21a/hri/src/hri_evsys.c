@@ -1,6 +1,6 @@
-#include "processor/evsys.h"
+#include "hri/evsys.h"
 
-#include "processor/sam.h"
+#include "hri/sam.h"
 #include "utils/utils.h"
 
 #include <stdbool.h>

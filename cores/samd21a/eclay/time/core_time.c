@@ -2,7 +2,7 @@
 
 #include "eclay/reset.h"
 
-#include "processor/sam.h"
+#include "hri/sam.h"
 
 
 static volatile uint32_t _tickCount_mS = 0;

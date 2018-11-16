@@ -1,4 +1,4 @@
-#include "processor/sam.h"
+#include "hri/sam.h"
 
 /*
 void calibrateADC()
