@@ -1,7 +1,5 @@
 #include "hri/tc.h"
 
-#include <stddef.h>
-
 
 void HRI_TC_Initialize( void )
 {

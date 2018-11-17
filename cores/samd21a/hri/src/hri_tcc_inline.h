@@ -166,23 +166,23 @@ static inline void HRI_TCC_Command_ReadSync( hri_tcc_instance_t timer )
 
 static inline void HRI_TCC_OutputInvert_Enable( hri_tcc_instance_t timer, hri_tcc_output_t output )
 {
-  HRI_TCC_RANGE_CHECK_TIMER(timer, HRI_TCC_NO_RETURN_VALUE);
-  HRI_TCC_RANGE_CHECK_OUTPUT(output, HRI_TCC_NO_RETURN_VALUE);
+  HRI_TCC_RANGE_CHECK_TIMER( timer, HRI_TCC_NO_RETURN_VALUE );
+  HRI_TCC_RANGE_CHECK_OUTPUT( output, HRI_TCC_NO_RETURN_VALUE );
 
   hri_tcc_instance[timer]->DRVCTRL.reg |= (TCC_DRVCTRL_INVEN0 << output);
 }
 
 static inline void HRI_TCC_OutputInvert_Disable( hri_tcc_instance_t timer, hri_tcc_output_t output )
 {
-  HRI_TCC_RANGE_CHECK_TIMER(timer, HRI_TCC_NO_RETURN_VALUE);
-  HRI_TCC_RANGE_CHECK_OUTPUT(output, HRI_TCC_NO_RETURN_VALUE);
+  HRI_TCC_RANGE_CHECK_TIMER( timer, HRI_TCC_NO_RETURN_VALUE );
+  HRI_TCC_RANGE_CHECK_OUTPUT( output, HRI_TCC_NO_RETURN_VALUE );
 
   hri_tcc_instance[timer]->DRVCTRL.reg &= ~(TCC_DRVCTRL_INVEN0 << output);
 }
 
 static inline void HRI_TCC_EventInput_Enable( hri_tcc_instance_t timer, hri_tcc_event_input_t event )
 {
-  HRI_TCC_RANGE_CHECK_TIMER(timer, HRI_TCC_NO_RETURN_VALUE);
+  HRI_TCC_RANGE_CHECK_TIMER( timer, HRI_TCC_NO_RETURN_VALUE );
 
   switch( event )
   {
@@ -221,7 +221,7 @@ static inline void HRI_TCC_EventInput_Enable( hri_tcc_instance_t timer, hri_tcc_
 
 static inline void HRI_TCC_EventInput_Disable( hri_tcc_instance_t timer, hri_tcc_event_input_t event )
 {
-  HRI_TCC_RANGE_CHECK_TIMER(timer, HRI_TCC_NO_RETURN_VALUE);
+  HRI_TCC_RANGE_CHECK_TIMER( timer, HRI_TCC_NO_RETURN_VALUE );
 
   switch( event )
   {
@@ -256,21 +256,21 @@ static inline void HRI_TCC_EventInput_Disable( hri_tcc_instance_t timer, hri_tcc
 
 static inline void HRI_TCC_EventInput0_Action_Set( hri_tcc_instance_t timer, hri_tcc_event_input_0_action_t action )
 {
-  HRI_TCC_RANGE_CHECK_TIMER(timer, HRI_TCC_NO_RETURN_VALUE);
+  HRI_TCC_RANGE_CHECK_TIMER( timer, HRI_TCC_NO_RETURN_VALUE );
 
   hri_tcc_instance[timer]->EVCTRL.bit.EVACT0 = action;
 }
 
 static inline void HRI_TCC_EventInput1_Action_Set( hri_tcc_instance_t timer, hri_tcc_event_input_1_action_t action )
 {
-  HRI_TCC_RANGE_CHECK_TIMER(timer, HRI_TCC_NO_RETURN_VALUE);
+  HRI_TCC_RANGE_CHECK_TIMER( timer, HRI_TCC_NO_RETURN_VALUE );
 
   hri_tcc_instance[timer]->EVCTRL.bit.EVACT1 = action;
 }
 
 static inline void HRI_TCC_EventOutput_Enable( hri_tcc_instance_t timer, hri_tcc_event_output_t event )
 {
-  HRI_TCC_RANGE_CHECK_TIMER(timer, HRI_TCC_NO_RETURN_VALUE);
+  HRI_TCC_RANGE_CHECK_TIMER( timer, HRI_TCC_NO_RETURN_VALUE );
 
   switch( event )
   {
@@ -302,7 +302,7 @@ static inline void HRI_TCC_EventOutput_Enable( hri_tcc_instance_t timer, hri_tcc
 
 static inline void HRI_TCC_EventOutput_Disable( hri_tcc_instance_t timer, hri_tcc_event_output_t event )
 {
-  HRI_TCC_RANGE_CHECK_TIMER(timer, HRI_TCC_NO_RETURN_VALUE);
+  HRI_TCC_RANGE_CHECK_TIMER( timer, HRI_TCC_NO_RETURN_VALUE );
 
   switch( event )
   {
@@ -334,17 +334,14 @@ static inline void HRI_TCC_EventOutput_Disable( hri_tcc_instance_t timer, hri_tc
 
 static inline void HRI_TCC_EventCountMode_Set( hri_tcc_instance_t timer, hri_tcc_event_count_mode_t mode )
 {
-  HRI_TCC_RANGE_CHECK_TIMER(timer, HRI_TCC_NO_RETURN_VALUE);
+  HRI_TCC_RANGE_CHECK_TIMER( timer, HRI_TCC_NO_RETURN_VALUE );
 
   hri_tcc_instance[timer]->EVCTRL.bit.CNTSEL = mode;
 }
 
-
-
-
 static inline void HRI_TCC_Interrupt_Enable( hri_tcc_instance_t timer, hri_tcc_interrupt_t interrupt )
 {
-  HRI_TCC_RANGE_CHECK_TIMER(timer, HRI_TCC_NO_RETURN_VALUE);
+  HRI_TCC_RANGE_CHECK_TIMER( timer, HRI_TCC_NO_RETURN_VALUE );
 
   switch( interrupt )
   {
@@ -394,7 +391,7 @@ static inline void HRI_TCC_Interrupt_Enable( hri_tcc_instance_t timer, hri_tcc_i
 
 static inline void HRI_TCC_Interrupt_Disable( hri_tcc_instance_t timer, hri_tcc_interrupt_t interrupt )
 {
-  HRI_TCC_RANGE_CHECK_TIMER(timer, HRI_TCC_NO_RETURN_VALUE);
+  HRI_TCC_RANGE_CHECK_TIMER( timer, HRI_TCC_NO_RETURN_VALUE );
 
   switch( interrupt )
   {
@@ -444,7 +441,7 @@ static inline void HRI_TCC_Interrupt_Disable( hri_tcc_instance_t timer, hri_tcc_
 
 static inline bool HRI_TCC_InterruptFlag_Get( hri_tcc_instance_t timer, hri_tcc_interrupt_t interrupt )
 {
-  HRI_TCC_RANGE_CHECK_TIMER(timer, false);
+  HRI_TCC_RANGE_CHECK_TIMER( timer, false );
 
   switch( interrupt )
   {
@@ -481,7 +478,7 @@ static inline bool HRI_TCC_InterruptFlag_Get( hri_tcc_instance_t timer, hri_tcc_
 
 static inline void HRI_TCC_InterruptFlag_Clear( hri_tcc_instance_t timer, hri_tcc_interrupt_t interrupt )
 {
-  HRI_TCC_RANGE_CHECK_TIMER(timer, HRI_TCC_NO_RETURN_VALUE);
+  HRI_TCC_RANGE_CHECK_TIMER( timer, HRI_TCC_NO_RETURN_VALUE );
 
   switch( interrupt )
   {
@@ -529,297 +526,114 @@ static inline void HRI_TCC_InterruptFlag_Clear( hri_tcc_instance_t timer, hri_tc
   }
 }
 
-
-
-
-
-
-
-
-
-static inline void HRI_TCC_Waveform_Set(
-    hri_tcc_instance_t  timer,
-    hri_tcc_waveform_t  waveform
-  )
+static inline bool HRI_TCC_isStopped( hri_tcc_instance_t timer )
 {
-  switch( timer )
-  {
-    case HRI_TCC_INSTANCE_TCC0:
-      TCC0->WAVE.bit.WAVEGEN = waveform;
-      break;
-    case HRI_TCC_INSTANCE_TCC1:
-      TCC1->WAVE.bit.WAVEGEN = waveform;
-      break;
-    case HRI_TCC_INSTANCE_TCC2:
-      TCC2->WAVE.bit.WAVEGEN = waveform;
-      break;
-    default:
-      break;
-  }
+  HRI_TCC_RANGE_CHECK_TIMER( timer, true );
+  
+  return hri_tcc_instance[timer]->STATUS.bit.STOP == 1;
 }
 
-
-static inline void HRI_TCC_Period_Set(
-    hri_tcc_instance_t  timer,
-    uint32_t                  period
-  )
+static inline bool HRI_TCC_isRunning( hri_tcc_instance_t timer )
 {
-  switch( timer )
-  {
-    case HRI_TCC_INSTANCE_TCC0:
-      TCC0->PER.reg = period;
-      while( TCC0->SYNCBUSY.bit.PER );
-      break;
-    case HRI_TCC_INSTANCE_TCC1:
-      TCC1->PER.reg = period;
-      while( TCC1->SYNCBUSY.bit.PER );
-      break;
-    case HRI_TCC_INSTANCE_TCC2:
-      TCC2->PER.reg = period;
-      while( TCC2->SYNCBUSY.bit.PER );
-      break;
-    default:
-      break;
-  }
+  HRI_TCC_RANGE_CHECK_TIMER( timer, false );
+  
+  return hri_tcc_instance[timer]->STATUS.bit.STOP == 0;
 }
 
-static inline void HRI_TCC_Count_Set(
-    hri_tcc_instance_t  timer,
-    uint32_t                  count
-  )
+static inline void HRI_TCC_Count_Set( hri_tcc_instance_t timer, uint32_t count )
 {
-  switch( timer )
-  {
-    case HRI_TCC_INSTANCE_TCC0:
-      TCC0->COUNT.reg = count;
-      while( TCC0->SYNCBUSY.bit.COUNT );
-      break;
-    case HRI_TCC_INSTANCE_TCC1:
-      TCC1->COUNT.reg = count;
-      while( TCC1->SYNCBUSY.bit.COUNT );
-      break;
-    case HRI_TCC_INSTANCE_TCC2:
-      TCC2->COUNT.reg = count;
-      while( TCC2->SYNCBUSY.bit.COUNT );
-      break;
-    default:
-      break;
-  }
+  HRI_TCC_RANGE_CHECK_TIMER( timer, HRI_TCC_NO_RETURN_VALUE);
+
+  hri_tcc_instance[timer]->COUNT.reg = count;
+  HRI_TCC_WAIT_FOR_SYNC( timer, TCC_SYNCBUSY_COUNT );
 }
 
-static inline uint32_t HRI_TCC_Count_Get(
-    hri_tcc_instance_t  timer
-  )
+static inline uint32_t HRI_TCC_Count_Get( hri_tcc_instance_t timer )
 {
-  switch( timer )
-  {
-    case HRI_TCC_INSTANCE_TCC0:
-      TCC0->CTRLBSET.reg = TCC_CTRLBSET_CMD_READSYNC;
-      while( TCC0->SYNCBUSY.reg & (TCC_SYNCBUSY_CTRLB | TCC_SYNCBUSY_COUNT) );
-      return TCC0->COUNT.reg;
-    case HRI_TCC_INSTANCE_TCC1:
-      TCC1->CTRLBSET.reg = TCC_CTRLBSET_CMD_READSYNC;
-      while( TCC1->SYNCBUSY.reg & (TCC_SYNCBUSY_CTRLB | TCC_SYNCBUSY_COUNT) );
-      return TCC1->COUNT.reg;
-    case HRI_TCC_INSTANCE_TCC2:
-      TCC2->CTRLBSET.reg = TCC_CTRLBSET_CMD_READSYNC;
-      while( TCC2->SYNCBUSY.reg & (TCC_SYNCBUSY_CTRLB | TCC_SYNCBUSY_COUNT) );
-      return TCC2->COUNT.reg;
-    default:
-      return 0;
-  }
+  HRI_TCC_RANGE_CHECK_TIMER( timer, 0 );
+
+  hri_tcc_instance[timer]->CTRLBSET.reg = TCC_CTRLBSET_CMD_READSYNC;
+  HRI_TCC_WAIT_FOR_SYNC( timer, (TCC_SYNCBUSY_CTRLB | TCC_SYNCBUSY_COUNT) );
+
+  return hri_tcc_instance[timer]->COUNT.reg;
 }
 
-static inline void HRI_TCC_Compare_Set(
-    hri_tcc_instance_t  timer,
-    hri_tcc_channel_t   channel,
-    uint32_t                    compare
-  )
+static inline void HRI_TCC_Pattern_Set( hri_tcc_instance_t timer, uint8_t enable, uint8_t value )
 {
-  switch( timer )
-  {
-    case HRI_TCC_INSTANCE_TCC0:
-      if( channel <= HRI_TCC_CHANNEL_MC3 )
-      {
-        TCC0->CC[channel].reg = compare;
-        while( TCC0->SYNCBUSY.reg | (TCC_SYNCBUSY_CC0 << channel) );
-      }
-      break;
-    case HRI_TCC_INSTANCE_TCC1:
-      if( channel <= HRI_TCC_CHANNEL_MC1 )
-      {
-        TCC1->CC[channel].reg = compare;
-        while( TCC1->SYNCBUSY.reg | (TCC_SYNCBUSY_CC0 << channel) );
-      }
-      break;
-    case HRI_TCC_INSTANCE_TCC2:
-      if( channel <= HRI_TCC_CHANNEL_MC1 )
-      {
-        TCC2->CC[channel].reg = compare;
-        while( TCC2->SYNCBUSY.reg | (TCC_SYNCBUSY_CC0 << channel) );
-      }
-      break;
-    default:
-      break;
-  }
+  HRI_TCC_RANGE_CHECK_TIMER( timer, HRI_TCC_NO_RETURN_VALUE );
+
+  hri_tcc_instance[timer]->PATT.reg = TCC_PATT_PGE(enable) | TCC_PATT_PGV(value);
+  HRI_TCC_WAIT_FOR_SYNC( timer, TCC_SYNCBUSY_PATT );
 }
 
-static inline uint32_t HRI_TCC_Capture_Get(
-    hri_tcc_instance_t  timer,
-    hri_tcc_channel_t   channel
-  )
+static inline void HRI_TCC_PatternEnable_Set( hri_tcc_instance_t timer, uint8_t enable )
 {
-  switch( timer )
-  {
-    case HRI_TCC_INSTANCE_TCC0:
-      if( channel <= HRI_TCC_CHANNEL_MC3 )
-      {
-        return TCC0->CC[channel].reg;
-      }
-      else
-      {
-        return 0;
-      }
-    case HRI_TCC_INSTANCE_TCC1:
-      if( channel <= HRI_TCC_CHANNEL_MC1 )
-      {
-        return TCC1->CC[channel].reg;
-      }
-      else
-      {
-        return 0;
-      }
-    case HRI_TCC_INSTANCE_TCC2:
-      if( channel <= HRI_TCC_CHANNEL_MC1 )
-      {
-        return TCC2->CC[channel].reg;
-      }
-      else
-      {
-        return 0;
-      }
-    default:
-      return 0;
-  }
+  HRI_TCC_RANGE_CHECK_TIMER( timer, HRI_TCC_NO_RETURN_VALUE );
+
+  *((__IO uint8_t*)hri_tcc_instance[timer]->PATT.reg) = enable;
+  HRI_TCC_WAIT_FOR_SYNC( timer, TCC_SYNCBUSY_PATT );
 }
 
-
-static inline void HRI_TCC_Pattern_Set(
-    hri_tcc_instance_t  timer,
-    uint8_t                     enable,
-    uint8_t                     value
-  )
+static inline void HRI_TCC_PatternValue_Set( hri_tcc_instance_t timer, uint8_t value )
 {
-  switch( timer )
-  {
-    case HRI_TCC_INSTANCE_TCC0:
-      TCC0->PATT.reg = TCC_PATT_PGE(enable) | TCC_PATT_PGV(value);
-      while( TCC0->SYNCBUSY.bit.PATT );
-      break;
-    case HRI_TCC_INSTANCE_TCC1:
-      TCC1->PATT.reg = TCC_PATT_PGE(enable) | TCC_PATT_PGV(value);
-      while( TCC1->SYNCBUSY.bit.PATT );
-      break;
-    case HRI_TCC_INSTANCE_TCC2:
-      break;
-    default:
-      break;
-  }
+  HRI_TCC_RANGE_CHECK_TIMER( timer, HRI_TCC_NO_RETURN_VALUE );
+
+  *((__IO uint8_t*)hri_tcc_instance[timer]->PATT.reg + 1)= value;
+  HRI_TCC_WAIT_FOR_SYNC( timer, TCC_SYNCBUSY_PATT );
 }
 
-static inline void HRI_TCC_PatternEnable_Set(
-    hri_tcc_instance_t  timer,
-    uint8_t                   enable
-  )
+static inline __IO uint16_t* HRI_TCC_PatternRegister( hri_tcc_instance_t timer )
 {
-  switch( timer )
-  {
-    case HRI_TCC_INSTANCE_TCC0:
-      *((__IO uint8_t*)TCC0->PATT.reg) = enable;
-      while( TCC0->SYNCBUSY.bit.PATT );
-      break;
-    case HRI_TCC_INSTANCE_TCC1:
-      *((__IO uint8_t*)TCC1->PATT.reg) = enable;
-      while( TCC1->SYNCBUSY.bit.PATT );
-      break;
-    case HRI_TCC_INSTANCE_TCC2:
-      break;
-    default:
-      break;
-  }
+  HRI_TCC_RANGE_CHECK_TIMER( timer, NULL );
+
+  return (__IO uint16_t*)hri_tcc_instance[timer]->PATT.reg;
 }
 
-static inline void HRI_TCC_PatternValue_Set(
-    hri_tcc_instance_t  timer,
-    uint8_t                   value
-  )
+static inline __IO uint8_t* HRI_TCC_PatternRegisterEnable( hri_tcc_instance_t timer )
 {
-  switch( timer )
-  {
-    case HRI_TCC_INSTANCE_TCC0:
-      *((__IO uint8_t*)TCC0->PATT.reg + 1) = value;
-      while( TCC0->SYNCBUSY.bit.PATT );
-      break;
-    case HRI_TCC_INSTANCE_TCC1:
-      *((__IO uint8_t*)TCC1->PATT.reg + 1) = value;
-      while( TCC1->SYNCBUSY.bit.PATT );
-      break;
-    case HRI_TCC_INSTANCE_TCC2:
-      break;
-    default:
-      break;
-  }
+  HRI_TCC_RANGE_CHECK_TIMER( timer, NULL );
+
+  return (__IO uint8_t*)hri_tcc_instance[timer]->PATT.reg;
 }
 
-static inline __IO uint16_t* HRI_TCC_PatternRegister(
-    hri_tcc_instance_t  timer
-  )
+static inline __IO uint8_t* HRI_TCC_PatternRegisterValue( hri_tcc_instance_t timer )
 {
-  switch( timer )
-  {
-    case HRI_TCC_INSTANCE_TCC0:
-      return (__IO uint16_t*)TCC0->PATT.reg;
-    case HRI_TCC_INSTANCE_TCC1:
-      return (__IO uint16_t*)TCC1->PATT.reg;
-    case HRI_TCC_INSTANCE_TCC2:
-      return NULL;
-    default:
-      return NULL;
-  }
+  HRI_TCC_RANGE_CHECK_TIMER( timer, NULL );
+
+  return (__IO uint8_t*)hri_tcc_instance[timer]->PATT.reg + 1;
 }
 
-static inline __IO uint8_t* HRI_TCC_PatternRegisterEnable(
-    hri_tcc_instance_t  timer
-  )
+static inline void HRI_TCC_Waveform_Set( hri_tcc_instance_t timer, hri_tcc_waveform_t waveform )
 {
-  switch( timer )
-  {
-    case HRI_TCC_INSTANCE_TCC0:
-      return (__IO uint8_t*)TCC0->PATT.reg;
-    case HRI_TCC_INSTANCE_TCC1:
-      return (__IO uint8_t*)TCC1->PATT.reg;
-    case HRI_TCC_INSTANCE_TCC2:
-      return NULL;
-    default:
-      return NULL;
-  }
+  HRI_TCC_RANGE_CHECK_TIMER( timer, HRI_TCC_NO_RETURN_VALUE );
+
+  hri_tcc_instance[timer]->WAVE.bit.WAVEGEN = waveform;
+  HRI_TCC_WAIT_FOR_SYNC( timer, TCC_SYNCBUSY_WAVE );
 }
 
-static inline __IO uint8_t* HRI_TCC_PatternRegisterValue(
-    hri_tcc_instance_t  timer
-  )
+static inline void HRI_TCC_Period_Set( hri_tcc_instance_t timer, uint32_t period )
 {
-  switch( timer )
-  {
-    case HRI_TCC_INSTANCE_TCC0:
-      return (__IO uint8_t*)TCC0->PATT.reg + 1;
-    case HRI_TCC_INSTANCE_TCC1:
-      return (__IO uint8_t*)TCC1->PATT.reg + 1;
-    case HRI_TCC_INSTANCE_TCC2:
-      return NULL;
-    default:
-      return NULL;
-  }
+  HRI_TCC_RANGE_CHECK_TIMER( timer, HRI_TCC_NO_RETURN_VALUE );
+
+  hri_tcc_instance[timer]->PER.reg = period;
+  HRI_TCC_WAIT_FOR_SYNC( timer, TCC_SYNCBUSY_PER );
+}
+
+static inline void HRI_TCC_Compare_Set( hri_tcc_instance_t timer, hri_tcc_channel_t channel,  uint32_t compare )
+{
+  HRI_TCC_RANGE_CHECK_TIMER( timer, HRI_TCC_NO_RETURN_VALUE );
+  HRI_TCC_RANGE_CHECK_CHANNEL( channel, HRI_TCC_NO_RETURN_VALUE );
+
+  hri_tcc_instance[timer]->CC[channel].reg = compare;
+  HRI_TCC_WAIT_FOR_SYNC( timer, (TCC_SYNCBUSY_CC0 << channel) );
+}
+
+static inline uint32_t HRI_TCC_Capture_Get( hri_tcc_instance_t timer, hri_tcc_channel_t channel )
+{
+  HRI_TCC_RANGE_CHECK_TIMER( timer, 0 );
+  HRI_TCC_RANGE_CHECK_CHANNEL( channel, 0 );
+
+  return hri_tcc_instance[timer]->CC[channel].reg;
 }
 
 
