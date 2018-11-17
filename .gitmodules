@@ -1,3 +1,0 @@
-[submodule "cores/samd21a/hri"]
-	path = cores/samd21a/hri
-	url = https://github.com/eClay/hri_samd21.git
