@@ -17,7 +17,9 @@
       "stdbool.h": "c",
       "samd21.h": "c",
       "atomic.h": "c",
-      "sam.h": "c"
+      "sam.h": "c",
+      "stdint.h": "c",
+      "utils.h": "c"
     },
     "editor.tabSize": 2
   }
