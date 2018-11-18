@@ -9,8 +9,8 @@
 
 typedef struct
 {
-  processor_port_group_t port;
-  processor_port_pin_t   pin;
+  hri_port_group_t port;
+  hri_port_pin_t   pin;
 } eclay_digital_pin_definition_t;
 
 #define ECLAY_DIGITAL_PIN_DEFINITION(noarg, pin)   { ECLAY_DIGITAL_PIN_##pin },
@@ -28,10 +28,10 @@ void ECLAY_DIGITAL_DirectionSet_noinline(
 {
   if( pin < ECLAY_DIGITAL_PIN_MAX )
   {
-    PROCESSOR_PORT_DirectionSet( coreDigitalPins[pin].port, coreDigitalPins[pin].pin, direction );
+    HRI_PORT_DirectionSet( coreDigitalPins[pin].port, coreDigitalPins[pin].pin, direction );
 
     // Always enable input reads for digital pins
-    PROCESSOR_PORT_InputEnableSet( coreDigitalPins[pin].port, coreDigitalPins[pin].pin, true );
+    HRI_PORT_InputEnableSet( coreDigitalPins[pin].port, coreDigitalPins[pin].pin, true );
   }
   else
   {
@@ -45,7 +45,7 @@ eclay_digital_direction_t ECLAY_DIGITAL_DirectionGet_noinline(
 {
   if( pin < ECLAY_DIGITAL_PIN_MAX )
   {
-    return PROCESSOR_PORT_DirectionGet( coreDigitalPins[pin].port, coreDigitalPins[pin].pin );
+    return HRI_PORT_DirectionGet( coreDigitalPins[pin].port, coreDigitalPins[pin].pin );
   }
   else
   {
@@ -61,7 +61,7 @@ void ECLAY_DIGITAL_OutputSet_noinline(
 {
   if( pin < ECLAY_DIGITAL_PIN_MAX )
   {
-    PROCESSOR_PORT_OutputSet( coreDigitalPins[pin].port, coreDigitalPins[pin].pin, state );
+    HRI_PORT_OutputSet( coreDigitalPins[pin].port, coreDigitalPins[pin].pin, state );
   }
   else
   {
@@ -75,7 +75,7 @@ void ECLAY_DIGITAL_OutputToggle_noinline(
 {
   if( pin < ECLAY_DIGITAL_PIN_MAX )
   {
-    PROCESSOR_PORT_OutputToggle( coreDigitalPins[pin].port, coreDigitalPins[pin].pin );
+    HRI_PORT_OutputToggle( coreDigitalPins[pin].port, coreDigitalPins[pin].pin );
   }
   else
   {
@@ -89,7 +89,7 @@ eclay_digital_pinstate_t ECLAY_DIGITAL_OutputGet_noinline(
 {
   if( pin < ECLAY_DIGITAL_PIN_MAX )
   {
-    return PROCESSOR_PORT_OutputGet( coreDigitalPins[pin].port, coreDigitalPins[pin].pin );
+    return HRI_PORT_OutputGet( coreDigitalPins[pin].port, coreDigitalPins[pin].pin );
   }
   else
   {
@@ -104,7 +104,7 @@ eclay_digital_pinstate_t ECLAY_DIGITAL_InputGet_noinline(
 {
   if( pin < ECLAY_DIGITAL_PIN_MAX )
   {
-    return PROCESSOR_PORT_InputGet( coreDigitalPins[pin].port, coreDigitalPins[pin].pin );
+    return HRI_PORT_InputGet( coreDigitalPins[pin].port, coreDigitalPins[pin].pin );
   }
   else
   {
@@ -120,7 +120,7 @@ void ECLAY_DIGITAL_PullSet(
 {
   if( pin < ECLAY_DIGITAL_PIN_MAX )
   {
-    PROCESSOR_PORT_PullSet( coreDigitalPins[pin].port, coreDigitalPins[pin].pin, pull );
+    HRI_PORT_PullSet( coreDigitalPins[pin].port, coreDigitalPins[pin].pin, pull );
   }
   else
   {
@@ -134,7 +134,7 @@ eclay_digital_pull_t ECLAY_DIGITAL_PullGet(
 {
   if( pin < ECLAY_DIGITAL_PIN_MAX )
   {
-    return PROCESSOR_PORT_PullGet( coreDigitalPins[pin].port, coreDigitalPins[pin].pin );
+    return HRI_PORT_PullGet( coreDigitalPins[pin].port, coreDigitalPins[pin].pin );
   }
   else
   {
