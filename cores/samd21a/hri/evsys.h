@@ -1,7 +1,7 @@
 #ifndef ECLAY_HRI_EVSYS_H
 #define ECLAY_HRI_EVSYS_H
 
-#include "hri/sam.h"
+#include <sam.h>
 
 #include <stdbool.h>
 #include <stdint.h>
@@ -231,6 +231,11 @@ void HRI_EVSYS_InterruptFlag_Clear(
     hri_evsys_channel_t channel,
     hri_evsys_interrupt_t interrupt
   );
+
+
+#define INCLUDE_HRI_EVSYS_INLINE_H
+#include "src/hri_evsys_inline.h"
+#undef INCLUDE_HRI_EVSYS_INLINE_H
 
 
 #ifdef __cplusplus

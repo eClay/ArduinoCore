@@ -26,7 +26,7 @@
 #include "variant.h"
 #include "USB_host.h"
 #include "samd21_host.h"
-#include "hri/sam.h"
+#include <sam.h>
 
 #define HOST_DEFINED
 #ifdef HOST_DEFINED

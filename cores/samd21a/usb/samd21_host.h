@@ -19,7 +19,7 @@
 #ifndef SAMD21_HOST_H_INCLUDED
 #define SAMD21_HOST_H_INCLUDED
 
-#include "hri/sam.h"
+#include <sam.h>
 
 #ifdef __cplusplus
 extern "C" {

@@ -1,10 +1,9 @@
 #ifndef ECLAY_HRI_TC_H
 #define ECLAY_HRI_TC_H
 
-#include "hri/sam.h"
+#include <sam.h>
 
 #include <stdbool.h>
-#include <stddef.h>
 #include <stdint.h>
 
 

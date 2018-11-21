@@ -1,7 +1,7 @@
 #ifndef ECLAY_HRI_DMAC_H
 #define ECLAY_HRI_DMAC_H
 
-#include "hri/sam.h"
+#include <sam.h>
 
 #include <stdbool.h>
 #include <stdint.h>

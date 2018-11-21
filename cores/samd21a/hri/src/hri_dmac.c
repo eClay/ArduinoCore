@@ -1,6 +1,6 @@
 #include "hri/dmac.h"
 
-#include "hri/sam.h"
+#include <sam.h>
 #include "utils/utils.h"
 
 #include <stdbool.h>

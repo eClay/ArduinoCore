@@ -40,7 +40,7 @@
 
 #include "hri/atomic.h"
 
-#include "hri/sam.h"
+#include <sam.h>
 
 /**
  * \brief Disable interrupts, enter critical section

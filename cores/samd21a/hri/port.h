@@ -1,12 +1,10 @@
 #ifndef ECLAY_HRI_PORT_H
 #define ECLAY_HRI_PORT_H
 
-#include "hri/sam.h"
+#include <sam.h>
 
 #include <stdbool.h>
 #include <stdint.h>
-
-#include "utils/utils_repeat_macro.h"
 
 
 #ifdef __cplusplus

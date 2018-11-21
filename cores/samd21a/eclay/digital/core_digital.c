@@ -2,7 +2,7 @@
 
 #include "hri/port.h"
 
-#include "hri/sam.h"
+#include <sam.h>
 
 #include "utils/utils_repeat_macro.h"
 

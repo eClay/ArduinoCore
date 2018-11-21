@@ -3,8 +3,8 @@
         {
             "name": "SAMD21",
             "includePath": [
-                "${workspaceRoot}/cores/samd21a",
-                "${workspaceRoot}/variants/minion_d21",
+                "${workspaceRoot}/eclay/cores/samd21a",
+                "${workspaceRoot}/eclay/variants/minion_d21",
                 "~/Library/Arduino15/packages/eclay/tools/⁨CMSIS⁩/5.4.0/CMSIS⁩/⁨Core⁩/Include",
                 "~/Library/Arduino15/packages/eclay/tools/gcc-arm-none-eabi/7-2018q2/arm-none-eabi/include"
             ],

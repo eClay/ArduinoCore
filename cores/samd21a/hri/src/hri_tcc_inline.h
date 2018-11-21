@@ -3,6 +3,9 @@
 #endif
 
 
+#include <stddef.h>
+
+
 static Tcc* const hri_tcc_instance[TCC_INST_NUM] = TCC_INSTS;
 
 
