@@ -14,7 +14,7 @@ void setupUSB() { }
 
 extern "C"{
 void SystemInit(void);
-void SystemInit2(void);
+void VARIANT_Initialize(void);
 void boardInit(void);
 }
 void initVariant(void);
@@ -24,8 +24,8 @@ void loop(void);
 
 int main(void)
 {
-    SystemInit();
-    SystemInit2();
+  SystemInit();
+  VARIANT_Initialize();
 	boardInit();
 
 	initVariant();

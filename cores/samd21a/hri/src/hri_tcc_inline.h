@@ -31,7 +31,7 @@ static Tcc* const hri_tcc_instance[TCC_INST_NUM] = TCC_INSTS;
 
 
 #define HRI_TCC_WAIT_FOR_SYNC(timer, sync_bit)  \
-  while( hri_tcc_instance[timer]->SYNCBUSY.reg | sync_bit )
+  while( hri_tcc_instance[timer]->SYNCBUSY.reg & sync_bit )
 
 
 static inline void HRI_TCC_SoftwareReset( hri_tcc_instance_t timer )
@@ -573,7 +573,7 @@ static inline void HRI_TCC_PatternEnable_Set( hri_tcc_instance_t timer, uint8_t 
 {
   HRI_TCC_RANGE_CHECK_TIMER( timer, HRI_TCC_NO_RETURN_VALUE );
 
-  *((__IO uint8_t*)hri_tcc_instance[timer]->PATT.reg) = enable;
+  *((__IO uint8_t*)&hri_tcc_instance[timer]->PATT.reg) = enable;
   HRI_TCC_WAIT_FOR_SYNC( timer, TCC_SYNCBUSY_PATT );
 }
 
@@ -581,7 +581,7 @@ static inline void HRI_TCC_PatternValue_Set( hri_tcc_instance_t timer, uint8_t v
 {
   HRI_TCC_RANGE_CHECK_TIMER( timer, HRI_TCC_NO_RETURN_VALUE );
 
-  *((__IO uint8_t*)hri_tcc_instance[timer]->PATT.reg + 1)= value;
+  *((__IO uint8_t*)&hri_tcc_instance[timer]->PATT.reg + 1)= value;
   HRI_TCC_WAIT_FOR_SYNC( timer, TCC_SYNCBUSY_PATT );
 }
 
@@ -589,21 +589,21 @@ static inline __IO uint16_t* HRI_TCC_PatternRegister( hri_tcc_instance_t timer )
 {
   HRI_TCC_RANGE_CHECK_TIMER( timer, NULL );
 
-  return (__IO uint16_t*)hri_tcc_instance[timer]->PATT.reg;
+  return (__IO uint16_t*)&hri_tcc_instance[timer]->PATT.reg;
 }
 
 static inline __IO uint8_t* HRI_TCC_PatternRegisterEnable( hri_tcc_instance_t timer )
 {
   HRI_TCC_RANGE_CHECK_TIMER( timer, NULL );
 
-  return (__IO uint8_t*)hri_tcc_instance[timer]->PATT.reg;
+  return (__IO uint8_t*)&hri_tcc_instance[timer]->PATT.reg;
 }
 
 static inline __IO uint8_t* HRI_TCC_PatternRegisterValue( hri_tcc_instance_t timer )
 {
   HRI_TCC_RANGE_CHECK_TIMER( timer, NULL );
 
-  return (__IO uint8_t*)hri_tcc_instance[timer]->PATT.reg + 1;
+  return (__IO uint8_t*)&hri_tcc_instance[timer]->PATT.reg + 1;
 }
 
 static inline void HRI_TCC_Waveform_Set( hri_tcc_instance_t timer, hri_tcc_waveform_t waveform )

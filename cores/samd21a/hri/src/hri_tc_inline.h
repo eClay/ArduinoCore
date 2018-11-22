@@ -31,7 +31,7 @@ static Tc* const hri_tc_instance[TC_INST_NUM] = TC_INSTS;
 
 
 #define HRI_TC_WAIT_FOR_SYNC(timer)  \
-  while( hri_tc_instance[timer]->COUNT32.STATUS.reg | TC_STATUS_SYNCBUSY )
+  while( hri_tc_instance[timer]->COUNT32.STATUS.reg & TC_STATUS_SYNCBUSY )
 
 
 static inline void HRI_TC_SoftwareReset( hri_tc_instance_t timer )

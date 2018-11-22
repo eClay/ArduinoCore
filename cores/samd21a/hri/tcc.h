@@ -1,6 +1,9 @@
 #ifndef ECLAY_HRI_TCC_H
 #define ECLAY_HRI_TCC_H
 
+
+#include "hri/gclk.h"
+
 #include <sam.h>
 
 #include <stdbool.h>
@@ -140,7 +143,7 @@ typedef enum {
 typedef void (*hri_tcc_interrupt_callback_t)( hri_tcc_instance_t timer, hri_tcc_interrupt_t interrupt );
 
 
-void HRI_TCC_Initialize( void );
+void HRI_TCC_Initialize( hri_tcc_instance_t timer, hri_gclk_generator_t generator );
 
 static inline void HRI_TCC_SoftwareReset( hri_tcc_instance_t timer );
 

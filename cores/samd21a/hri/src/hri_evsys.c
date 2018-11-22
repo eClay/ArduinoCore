@@ -1,5 +1,7 @@
 #include "hri/evsys.h"
 
+#include "hri/pm.h"
+
 #include <sam.h>
 #include "utils/utils.h"
 
@@ -13,6 +15,8 @@ static hri_evsys_interrupt_callback_t _interrupt_callback[HRI_EVSYS_NUM_CHANNELS
 
 void HRI_EVSYS_Initialize( void )
 {
+  HRI_PM_PeripheralClock_Enable( HRI_PM_PERIPHERAL_CLOCK_APBC_EVSYS );
+
   EVSYS->CTRL.bit.SWRST = 1;
   while( EVSYS->CTRL.bit.SWRST );
 }

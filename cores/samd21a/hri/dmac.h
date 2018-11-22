@@ -217,6 +217,8 @@ static inline void HRI_DMAC_DESCRIPTOR_BlockSize_Set( hri_dmac_descriptor_t* des
 
 static inline void HRI_DMAC_DESCRIPTOR_NextDescriptor_Set( hri_dmac_descriptor_t* descriptor, const hri_dmac_descriptor_t* next );
 
+static inline void HRI_DMAC_DESCRIPTOR_DescriptorValid_Set( hri_dmac_descriptor_t* descriptor );
+
 
 #define INCLUDE_HRI_DMAC_INLINE_H
 #include "src/hri_dmac_inline.h"

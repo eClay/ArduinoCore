@@ -256,7 +256,7 @@ static inline void HRI_DMAC_CHANNEL_EventInput_Disable( hri_dmac_channel_t chann
   
   CRITICAL_SECTION_ENTER();
   DMAC->CHID.reg = channel;
-  DMAC->CHCTRLB.bit.EVIE = 1;
+  DMAC->CHCTRLB.bit.EVIE = 0;
   CRITICAL_SECTION_LEAVE();
 }
 
@@ -494,4 +494,11 @@ static inline void HRI_DMAC_DESCRIPTOR_NextDescriptor_Set( hri_dmac_descriptor_t
   HRI_DMAC_NULL_CHECK_DESCRIPTOR( descriptor, HRI_DMAC_NO_RETURN_VALUE );
 
   descriptor->DESCADDR.reg = (uint32_t)next;
+}
+
+static inline void HRI_DMAC_DESCRIPTOR_DescriptorValid_Set( hri_dmac_descriptor_t* descriptor )
+{
+  HRI_DMAC_NULL_CHECK_DESCRIPTOR( descriptor, HRI_DMAC_NO_RETURN_VALUE );
+
+  descriptor->BTCTRL.bit.VALID = 1;
 }

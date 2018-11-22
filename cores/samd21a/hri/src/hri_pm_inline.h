@@ -5,7 +5,7 @@
 #include <sam.h>
 
 
-static inline void HRI_PM_SystemClockPrescaler_Set( hri_pm_system_clock_t clock, hri_pm_cpu_prescale_t prescale )
+static inline void HRI_PM_SystemClockPrescale_Set( hri_pm_system_clock_t clock, hri_pm_cpu_prescale_t prescale )
 {
   switch( clock )
   {

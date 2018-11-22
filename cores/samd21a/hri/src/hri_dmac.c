@@ -1,5 +1,7 @@
 #include "hri/dmac.h"
 
+#include "hri/pm.h"
+
 #include <sam.h>
 #include "utils/utils.h"
 
@@ -23,6 +25,9 @@ static hri_dmac_interrupt_callback_t _interrupt_callback[HRI_DMAC_NUM_CHANNELS];
 void HRI_DMAC_Initialize( void )
 {
   uint8_t i = 0;
+
+  HRI_PM_PeripheralClock_Enable( HRI_PM_PERIPHERAL_CLOCK_AHB_DMAC );
+  HRI_PM_PeripheralClock_Enable( HRI_PM_PERIPHERAL_CLOCK_APBB_DMAC );
 
   // Reset DMAC module
   CRITICAL_SECTION_ENTER();
